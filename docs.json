@@ -58,6 +58,7 @@
               "ai-tools/windsurf",
               {
                 "group": "시네앱 사용법",
+                "icon": "camera-movie",
                 "pages": [
                   "ai-tools/file-2",
                   "ai-tools/file-5",
