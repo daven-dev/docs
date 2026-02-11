@@ -11,16 +11,20 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "퀵 스타트",
         "groups": [
           {
             "group": "Getting started",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "quickstart"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "소식",
+        "groups": [
           {
             "group": "주요 소식",
             "icon": "megaphone",
@@ -35,11 +39,14 @@
             "pages": [
               "feature/new",
               "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "essentials/app"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
           {
             "group": "사용법",
             "icon": "toolbox",
@@ -63,23 +70,13 @@
         ]
       },
       {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
+        "tab": "토큰 및 리워드 ",
+        "icon": "star",
+        "pages": [
+          "file",
+          "file-3",
+          "file-1",
+          "file-2"
         ]
       }
     ]
