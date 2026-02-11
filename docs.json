@@ -12,6 +12,7 @@
     "tabs": [
       {
         "tab": "퀵 스타트",
+        "icon": "fire",
         "groups": [
           {
             "group": "Getting started",
@@ -24,6 +25,7 @@
       },
       {
         "tab": "소식",
+        "icon": "megaphone",
         "groups": [
           {
             "group": "주요 소식",
@@ -46,6 +48,7 @@
       },
       {
         "tab": "Guides",
+        "icon": "map",
         "groups": [
           {
             "group": "사용법",
