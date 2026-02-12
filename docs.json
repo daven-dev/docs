@@ -29,7 +29,7 @@
             ]
           },
           {
-            "group": "콘텐츠",
+            "group": "콘텐츠 생성",
             "hidden": true,
             "pages": [
               "essentials/ai",
@@ -52,10 +52,12 @@
             "group": "사용법",
             "pages": [
               "ai-tools/claude-code",
+              "ai-tools/ready-action",
               "ai-tools/cursor",
               "ai-tools/file",
               "ai-tools/file-1",
               "ai-tools/windsurf",
+              "ai-tools/file-6",
               {
                 "group": "시네앱 사용법",
                 "pages": [
@@ -99,12 +101,5 @@
      "cursor",
      "vscode"
    ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
   }
 }
