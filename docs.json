@@ -52,6 +52,7 @@
             "group": "사용법",
             "pages": [
               "ai-tools/claude-code",
+              "ai-tools/ready-action",
               "ai-tools/cursor",
               "ai-tools/file",
               "ai-tools/file-1",
