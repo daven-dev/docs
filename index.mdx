@@ -9,7 +9,7 @@ Daven AI 는 크리에이터의 창작을 위해 설게된 AI 입니다. 최신 
 
 ## 무엇이 다른가요
 
-챗기반의 AI 모델이나 범용 AI Agent는 영화나 숏폼, 매시간 다른 토픽으로 자동 배달되는 뉴스나 만평 같은 컨텐츠를 만들어내기 어렵습니다. 기존의 방식은 각각의 단계를 독립적으로 생성하므로, 사용자가 수동으로 선택하고 조합해야하는 수 없는 시행착오를 겪어야 합니다. 또는 AI Agent 가 일방적으로 모든 과정을 다 생성해서 시간과 비용을 지불하고도 사용자가 원했던 결과물을 제공하지 못했습니다. Daven AI 는 다양한 AI 모델을 Daven Orchestration System 을 통해서 관리하며, 이를 통해  크리에이터에게 창작의 각 단계를 안내하며 원하는 것을 창조할수 있도록 돕습니다. 그리고 사용자가 원하는 방식으로 공유를 통해 배포하거나, Youtube 나 틱톡등에 자동으로 연동이 되어서 컨텐츠를 배포할 수도 있습니다. 
+챗기반의 AI 모델이나 범용 AI Agent는 영화나 숏폼, 매시간 다른 토픽으로 자동 배달되는 뉴스나 만평 같은 컨텐츠를 만들어내기 어렵습니다. 기존의 방식은 각각의 단계를 독립적으로 생성하므로, 사용자가 수동으로 선택하고 조합해야하는 수 없는 시행착오를 겪어야 합니다. 또는 AI Agent 가 일방적으로 모든 과정을 다 생성해서 시간과 비용을 지불하고도 사용자가 원했던 결과물을 제공하지 못했습니다. Daven AI 는 다양한 AI 모델을 Daven Orchestration System 을 통해서 관리하며, 이를 통해  크리에이터에게 창작의 각 단계를 안내하며 원하는 것을 창조할수 있도록 돕습니다. 그리고 사용자가 원하는 방식으로 공유를 통해 배포하거나, Youtube 나 틱톡등에 자동으로 연동이 되어서 컨텐츠를 배포할 수도 있습니다.
 
 ## 무엇을 할수 있나요
 
@@ -17,32 +17,47 @@ Daven AI 는 크리에이터의 창작을 위해 설게된 AI 입니다. 최신 
 
 <Columns cols={4}>
   <Card title="이미지 " icon="palette" href="/development">
-    캐릭터 일관석을 지원하며, 전문적인 앵글, 스타일등을 적용해서 다양한 이미지 생성  
+    캐릭터 일관석을 지원하며, 전문적인 앵글, 스타일등을 적용해서 다양한 이미지 생성
   </Card>
   <Card title="영상" icon="camera" href="/essentials/settings">
-    캐릭터 일관성을 지원하며, 전문적인 카메라 워킹등을 적용한 다양한 영상 생성 
+    캐릭터 일관성을 지원하며, 전문적인 카메라 워킹등을 적용한 다양한 영상 생성
   </Card>
   <Card title="응악" icon="music" href="/essentials/navigation">
-    사용자가 원하는 가사 및 스타일 등을 적용한 다양한 장르의 응악을 생성. 
+    사용자가 원하는 가사 및 스타일 등을 적용한 다양한 장르의 응악을 생성.
   </Card>
   <Card title="숏폼 " icon="photo-film-music" href="/api-reference/introduction">
-    설명, 뉴스, 명언등 다양한 주제의 숏폼을 생성 및 사용자가 원한는대로 편집, 배포 
+    설명, 뉴스, 명언등 다양한 주제의 숏폼을 생성 및 사용자가 원한는대로 편집, 배포
   </Card>
 </Columns>
 
-## 그 밖에는요 ? 
+## 그 밖에는요 ?
 
 <Columns cols={4}>
   <Card title="신문" icon="pen-fancy" href="/essentials/markdown">
-    매일매일 특정 토픽의 뉴스를 원하는 시간에 만들어서 자동 배포 
+    매일매일 특정 토픽의 뉴스를 원하는 시간에 만들어서 자동 배포
   </Card>
   <Card title="영화" icon="film" href="/essentials/code">
     시놉시스,시나리오,캐릭터, 스토리보드, 편집등 영화를 위한 모든 도구
   </Card>
   <Card title="광고" icon="megaphone" href="/essentials/images">
-    상품, 이벤트등 다양한 분야의 홍보 영상을 제작 및 배포 
+    상품, 이벤트등 다양한 분야의 홍보 영상을 제작 및 배포
   </Card>
   <Card title="만화, 웹툰" icon="recycle" href="/essentials/reusable-snippets">
-    Write once and reuse across your docs.
+    캐릭터 일관성을 가진 만화, 웹툰, 만평등 다양한 컨텐츠가 자동 생성 
+  </Card>
+</Columns>
+
+<Columns cols={4}>
+  <Card title="캐릭터" icon="gingerbread-man">
+    나만의 캐릭터를 만들어 생성되는 모든 컨텐츠에 일괄 적용
+  </Card>
+  <Card title="저작 보호" icon="lock">
+    자신이 만든 캐릭터와 컨텐츠를 영구 저장하여 저작 증명 기록 및 보호 
+  </Card>
+  <Card title="예약작업" icon="calendar">
+    원하는 컨텐츠를 원하는 시간에 생성하여 자동으로 배포 
+  </Card>
+  <Card title="More " icon="plus">
+    많은 조합으로 다양한 기능을 지속제공, 함께 성장하는 앱 생태계
   </Card>
 </Columns>
