@@ -11,35 +11,41 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "소개",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      },
-      {
-        "tab": "소식",
-        "icon": "megaphone",
+        "tab": "문서",
         "groups": [
           {
-            "group": "주요 소식",
+            "group": "시작하기",
             "pages": [
-              "essentials/untitled-page",
-              "essentials/membership"
+              "file-5",
+              "file-4"
             ]
           },
           {
-            "group": "기능 업데이트 소식",
+            "group": "계정",
             "pages": [
-              "feature/new",
-              "essentials/markdown",
-              "essentials/app"
+              "file-6",
+              "file-9",
+              "file-7",
+              "file-8"
+            ]
+          },
+          {
+            "group": "콘텐츠",
+            "pages": [
+              "essentials/ai",
+              "essentials/untitled-page"
+            ]
+          },
+          {
+            "group": "참고자료",
+            "pages": [
+              "untitled-page"
             ]
           }
         ]
       },
       {
-        "tab": "Guides",
+        "tab": "이용 가이드",
         "groups": [
           {
             "group": "사용법",
@@ -61,16 +67,6 @@
               }
             ]
           }
-        ]
-      },
-      {
-        "tab": "토큰 및 리워드 ",
-        "icon": "star",
-        "pages": [
-          "file",
-          "file-3",
-          "file-1",
-          "file-2"
         ]
       }
     ]
