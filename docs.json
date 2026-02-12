@@ -39,7 +39,9 @@
           {
             "group": "참고자료",
             "hidden": true,
-            "pages": []
+            "pages": [
+              "untitled-page"
+            ]
           }
         ]
       },
