@@ -16,21 +16,21 @@
           {
             "group": "시작하기",
             "pages": [
+              "file",
               "file-5",
               "file-4"
             ]
           },
           {
-            "group": "계정",
+            "group": "쿠폰",
             "pages": [
-              "file-6",
-              "file-9",
-              "file-7",
-              "file-8"
+              "file-1",
+              "file-9"
             ]
           },
           {
             "group": "콘텐츠",
+            "hidden": true,
             "pages": [
               "essentials/ai",
               "essentials/untitled-page"
@@ -38,6 +38,7 @@
           },
           {
             "group": "참고자료",
+            "hidden": true,
             "pages": [
               "untitled-page"
             ]
@@ -49,6 +50,7 @@
         "groups": [
           {
             "group": "사용법",
+            "hidden": true,
             "pages": [
               "ai-tools/claude-code",
               "ai-tools/cursor",
@@ -57,7 +59,6 @@
               "ai-tools/windsurf",
               {
                 "group": "시네앱 사용법",
-                "icon": "camera-movie",
                 "pages": [
                   "ai-tools/file-2",
                   "ai-tools/file-5",
