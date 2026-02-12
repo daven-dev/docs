@@ -23,7 +23,6 @@
         "groups": [
           {
             "group": "주요 소식",
-            "icon": "megaphone",
             "pages": [
               "essentials/untitled-page",
               "essentials/membership"
@@ -31,7 +30,6 @@
           },
           {
             "group": "기능 업데이트 소식",
-            "icon": "newspaper",
             "pages": [
               "feature/new",
               "essentials/markdown",
@@ -42,11 +40,9 @@
       },
       {
         "tab": "Guides",
-        "icon": "map",
         "groups": [
           {
             "group": "사용법",
-            "icon": "toolbox",
             "pages": [
               "ai-tools/claude-code",
               "ai-tools/cursor",
