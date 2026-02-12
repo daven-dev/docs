@@ -22,15 +22,15 @@
             ]
           },
           {
-            "group": "계정",
+            "group": "쿠폰",
             "pages": [
               "file-1",
-              "file-9",
-              ""
+              "file-9"
             ]
           },
           {
             "group": "콘텐츠",
+            "hidden": true,
             "pages": [
               "essentials/ai",
               "essentials/untitled-page"
