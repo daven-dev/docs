@@ -1,23 +1,22 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "aspen",
   "name": "Daven",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#000000",
+    "light": "#f7faf8",
+    "dark": "#a5a9a6"
   },
   "favicon": "https://davenapp.s3.us-west-2.amazonaws.com/logos/daven_logo_only.png",
   "navigation": {
     "tabs": [
       {
-        "tab": "퀵 스타트",
-        "icon": "fire",
-        "groups": [
+        "tab": "소개",
+        "pages": [
+          "index",
           {
             "group": "시작하는 법",
             "pages": [
-              "index",
               "quickstart"
             ]
           }
