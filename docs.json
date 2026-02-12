@@ -50,7 +50,6 @@
         "groups": [
           {
             "group": "사용법",
-            "hidden": true,
             "pages": [
               "ai-tools/claude-code",
               "ai-tools/cursor",
