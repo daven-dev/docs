@@ -16,16 +16,16 @@
           {
             "group": "시작하기",
             "pages": [
-              "file",
-              "file-5",
-              "file-4"
+              "welcome-daven",
+              "quick-start",
+              "membership"
             ]
           },
           {
             "group": "쿠폰",
             "pages": [
-              "file-1",
-              "file-9"
+              "coupons",
+              "reward-tokens"
             ]
           },
           {
@@ -39,7 +39,7 @@
           {
             "group": "참고자료",
             "pages": [
-              "file-2"
+              "content-error"
             ]
           }
         ]
