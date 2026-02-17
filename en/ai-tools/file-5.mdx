@@ -1,113 +1,110 @@
 ---
-title: "시네 시퀀스"
+title: "Cine Sequence"
 ---
 
-**🎬 데이븐 AI – 시네 시퀀스(Cine Sequence) 통합 사용 가이드**
+**🎬 Daven AI – Cine Sequence usage guide**
 
-**앱은 여기서 확인하실수 있습니다. **https://daven.ai/apps
+**You can find the app here.** https://daven.ai/apps
 
-## 1. 레퍼런스 이미지 업로드
+## 1. Upload reference image
 
-- 먼저 시퀀스의 기준이 될 메인 레퍼런스 이미지 1장을 업로드합니다.
+- First upload one main reference image that will be the basis of the sequence.
 
-  _필요하다면 \\_ \\\*추가 레퍼런스 이미지(최대 10장)\\\*\\\*도 함께 업로드할 수 있습니다.
-- 메인 이미지는 전체 시퀀스의 세계관, 인물, 공간, 분위기의 기준이 됩니다.
+  _You can also upload \_ \\\*up to 10 additional reference images\\\*\\\* if needed.
+- The main image defines the world, characters, space, and mood of the whole sequence.
 
-## 2. 시네 시퀀스 기능 개요
+## 2. Cine Sequence overview
 
-- \* 시네ه 시퀀스는 메인 이미지 1장을 기준으로,
+- \* Cine Sequence takes one main image and,
+  _based on your chosen \\_ \\\*sequence type (concept)\\\*\\\*,
+  \\\*automatically generates a cinematic sequence of 9 scenes (Scene)\\\*\\\*.
+- \* Each sequence is like a storyboard: one scene split into 9 panels.
 
-  _선택한 \\_ \\\*시퀀스 타입(콘셉트)\\\*\\\*에 맞춰,
+## 3. Using reference images & text prompt (important)
 
-  \\\*총 9개의 장면(Scene)\\\*\\\*으로 구성된 시네마틱 시퀀스를 자동 생성해주는 기능입니다.
-- \* 각 시퀀스는 하나의 장면을 9컷으로 분해한 스토리보드 구조로 구성됩니다.
+- Besides the main reference image you can add:
 
-## 3.레퍼런스 이미지 & 텍스트 프롬프트 활용 (중요)
+  Additional reference images
 
-- 메인 레퍼런스 이미지 외에도:
+  Text prompt (custom prompt)
 
-  추가 레퍼런스 이미지
+- In that case Cine Sequence:
 
-  텍스트 프롬프트(커스텀 프롬프트)
+  Keeps the composition, characters, mood, and world of the main image
 
-  를 함께 입력할 수 있습니다.
-- 이 경우 시네 시퀀스는:
+  and incorporates the extra images and text
 
-  기존 메인 이미지의 구도, 인물, 분위기, 세계관을 유지하면서
+  to extend into 9 sequence scenes that match the chosen concept.
 
-  추가로 입력한 이미지와 텍스트의 내용을 반영하여
+  So:
 
-  9개의 시퀀스 장면을 각 콘셉트에 맞게 확장 생성합니다.
+  Base image \\+ extra references \\+ text direction \\=
 
-  즉,
+  A narrative 9-panel cinematic sequence built from your image
 
-  기준 이미지 \\+ 추가 레퍼런스 \\+ 텍스트 지시 \\=
+## 4. Sequence type (10 options)
 
-  기존 이미지를 확장한 서사형 9컷 시네마틱 시퀀스
+- Joyful Sequence
+- War/Duel Sequence
+- Calm/Peaceful Sequence
+- Dance/Rhythm Sequence
+- Farewell Sequence
+- Dialogue Sequence
+- Revelation Sequence
+- Release Sequence
+- Memory Sequence
+- Commerce Sequence
+- Intense Action Sequence
 
-## 4. 시퀀스 타입 선택 (총 10종)
+  Each type has different scene progression and emotional curve.
 
-- Joyful Sequence (즐거운 순간)
-- War/Duel Sequence (전쟁/결투)
-- Calm/Peaceful Sequence (평온/평화)
-- Dance/Rhythm Sequence (댄스/리듬)
-- Farewell Sequence (작별)
-- Dialogue Sequence (대화)
-- Revelation Sequence (폭로/반전)
-- Release Sequence (해방/안도)
-- Memory Sequence (회상/기억)
-- Commerce Sequence (판매/거래)
-- Intense Action Sequence (격렬한 액션)
+## 5. Output settings
 
-  각 타입은 장면 전개 방식과 감정 곡선이 서로 다르게 설계되어 있습니다.
+- Aspect ratio (e.g. 16:9, 1:1)
+- Resolution (e.g. 1K)
+- Output mode:
 
-## 5. 출력 설정
+  🟦 **Grid (single image)**: 3×3 layout; all 9 scenes in one image
 
-- 화면 비율 선택 (예: 16:9, 1:1 등)
-- 해상도 선택 (예: 1K 등)
-- 출력 모드 선택:
+  🟩 **9 separate frames**: Each scene as its own image (9 images)
 
-  🟦 그리드 (1장 이미지): 3×3 형태로 9개 장면이 한 장에 합쳐져 출력
+## 6. Using Grid mode
 
-  🟩 9개 개별 프레임: 각 장면이 개별 이미지 9장으로 출력
+- After choosing a sequence, generate in \\[Grid\\] mode:
 
-## 6. 그리드 모드 사용 방법
+  3×3 \\= 9 panels in one image.
+- In the result you can:
 
-- 시퀀스를 선택한 후 \\[그리드\\] 모드로 생성하면:
+  Select a panel by number and upscale it.
+- ⚠️ Note:
 
-  3×3 \\= 9컷이 하나의 이미지로 출력됩니다.
-- 결과 이미지에서:
+  Grid output is small panels upscaled, so
 
-  번호별로 특정 컷을 선택하여 업스케일(확대)할 수 있습니다.
-- ⚠️ 주의:
+  upscaling may reduce resolution and detail.
 
-  그리드 이미지는 작은 이미지를 확대하는 방식이기 때문에
+## 7. 9 separate frames mode (recommended)
 
-  업스케일 시 해상도 및 디테일 저하가 발생할 수 있습니다.
+- With \\[9 separate frames\\] mode:
 
-## 7. 9개 개별 프레임 모드 (권장)
+  Each sequence scene is generated as its own image from the start (9 images).
+- Benefits:
 
-- \\[9개 개별 프레임\\] 모드를 선택하면:
+  Each panel has full resolution
 
-  각 시퀀스 장면이 처음부터 9장의 개별 이미지로 생성됩니다.
-- 장점:
+  Better quality without upscaling
 
-  각 컷이 독립 해상도로 생성되어
+  Better for storyboards, continuity, and cinematic planning
 
-  업스케일 없이도 더 좋은 화질 확보 가능
+## 8. Workflow summary
 
-  스토리보드, 콘티, 시네마틱 기획 작업에 더 적합
-
-## 8. 전체 워크플로우 요약
-
-1. 메인 레퍼런스 이미지 업로드
-2. (선택) 추가 레퍼런스 이미지 업로드
-3. (선택) 텍스트 프롬프트 입력
-4. 시퀀스 타입 선택
-5. 화면 비율 / 해상도 설정
-6. 출력 모드 선택 (그리드 or 9개 개별 프레임)
-7. 생성 버튼 클릭
-8. 결과 확인 및 (필요 시) 컷 선택 / 업스케일
+1. Upload main reference image
+2. (Optional) Upload extra reference images
+3. (Optional) Enter text prompt
+4. Choose sequence type
+5. Set aspect ratio / resolution
+6. Choose output mode (Grid or 9 separate frames)
+7. Click Generate
+8. Review result and (if needed) select panel(s) / upscale
 
 <Frame>
   ![Image](/images/image-13.png)
@@ -117,14 +114,14 @@ title: "시네 시퀀스"
   ![Image](/images/image-14.png)
 </Frame>
 
-원본이미지의 “텍스트를 삭제” 하고 시퀀스를 생성한 모습
+Sequence generated after "removing text" from the original image
 
-- 텍스트창에 이미지의 텍스트를 삭제후 이미지 생성 요청
+- Request image generation after entering "remove text from image" in the text box
 
 <Frame>
   ![Image](/images/image-15.png)
 </Frame>
 
-**✨ 최종 한 줄 요약**
+**✨ Summary in one line**
 
-시네 시퀀스는 하나의 기준 이미지에 추가 이미지와 텍스트 지시를 결합해, 선택한 콘셉트에 맞는 9컷 시네마틱 장면 시퀀스를 자동으로 만들어주는 스토리보드 생성 도구이며, 실무에서는 ‘9개 개별 프레임’ 모드 사용이 가장 높은 품질을 제공합니다.
+Cine Sequence combines one base image with extra images and text direction to automatically create a 9-panel cinematic scene sequence that matches your chosen concept. For best quality in practice, use **9 separate frames** mode.
