@@ -32,82 +32,9 @@
                 ]
               },
               {
-                "group": "콘텐츠 생성",
-                "hidden": true,
-                "pages": [
-                  "essentials/ai",
-                  "essentials/untitled-page"
-                ]
-              },
-              {
                 "group": "참고자료",
                 "pages": [
                   "content-error"
-                ]
-              }
-            ]
-          },
-          {
-            "tab": "이용 가이드",
-            "groups": [
-              {
-                "group": "사용법",
-                "pages": [
-                  "ai-tools-copied-1/claude-code",
-                  "ai-tools-copied-1/ready-action",
-                  "ai-tools-copied-1/cursor",
-                  "ai-tools-copied-1/file",
-                  "ai-tools-copied-1/file-1",
-                  "ai-tools-copied-1/windsurf",
-                  "ai-tools-copied-1/file-6",
-                  {
-                    "group": "시네앱 사용법",
-                    "pages": [
-                      "ai-tools-copied-1/file-2",
-                      "ai-tools-copied-1/file-5",
-                      "ai-tools-copied-1/file-4",
-                      "ai-tools-copied-1/file-3"
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "language": "en",
-        "tabs": [
-          {
-            "tab": "문서",
-            "groups": [
-              {
-                "group": "시작하기",
-                "pages": [
-                  "welcome-daven-copied-1",
-                  "quick-start-copied-1",
-                  "membership-copied-1"
-                ]
-              },
-              {
-                "group": "쿠폰",
-                "pages": [
-                  "coupons-copied-1",
-                  "reward-tokens-copied-1"
-                ]
-              },
-              {
-                "group": "콘텐츠 생성",
-                "hidden": true,
-                "pages": [
-                  "essentials/ai-copied-1",
-                  "essentials/untitled-page-copied-1"
-                ]
-              },
-              {
-                "group": "참고자료",
-                "pages": [
-                  "content-error-copied-1"
                 ]
               }
             ]
@@ -132,6 +59,63 @@
                       "ai-tools/file-5",
                       "ai-tools/file-4",
                       "ai-tools/file-3"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "en",
+        "tabs": [
+          {
+            "tab": "문서",
+            "groups": [
+              {
+                "group": "시작하기",
+                "pages": [
+                  "en/welcome-daven",
+                  "en/quick-start",
+                  "en/membership"
+                ]
+              },
+              {
+                "group": "쿠폰",
+                "pages": [
+                  "en/coupons",
+                  "en/reward-tokens"
+                ]
+              },
+              {
+                "group": "참고자료",
+                "pages": [
+                  "en/content-error"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "이용 가이드",
+            "groups": [
+              {
+                "group": "사용법",
+                "pages": [
+                  "en/ai-tools/claude-code",
+                  "en/ai-tools/ready-action",
+                  "en/ai-tools/cursor",
+                  "en/ai-tools/file",
+                  "en/ai-tools/file-1",
+                  "en/ai-tools/windsurf",
+                  "en/ai-tools/file-6",
+                  {
+                    "group": "시네앱 사용법",
+                    "pages": [
+                      "en/ai-tools/file-2",
+                      "en/ai-tools/file-5",
+                      "en/ai-tools/file-4",
+                      "en/ai-tools/file-3"
                     ]
                   }
                 ]
