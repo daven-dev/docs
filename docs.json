@@ -71,10 +71,10 @@
         "language": "en",
         "tabs": [
           {
-            "tab": "문서",
+            "tab": "Docs",
             "groups": [
               {
-                "group": "시작하기",
+                "group": "Quick Start",
                 "pages": [
                   "en/welcome-daven",
                   "en/quick-start",
@@ -82,14 +82,14 @@
                 ]
               },
               {
-                "group": "쿠폰",
+                "group": "Coupons",
                 "pages": [
                   "en/coupons",
                   "en/reward-tokens"
                 ]
               },
               {
-                "group": "참고자료",
+                "group": "Reference",
                 "pages": [
                   "en/content-error"
                 ]
@@ -97,10 +97,10 @@
             ]
           },
           {
-            "tab": "이용 가이드",
+            "tab": "User Guide",
             "groups": [
               {
-                "group": "사용법",
+                "group": "How-to-use",
                 "pages": [
                   "en/ai-tools/claude-code",
                   "en/ai-tools/ready-action",
@@ -110,7 +110,7 @@
                   "en/ai-tools/windsurf",
                   "en/ai-tools/file-6",
                   {
-                    "group": "시네앱 사용법",
+                    "group": "How to use Cine app",
                     "pages": [
                       "en/ai-tools/file-2",
                       "en/ai-tools/file-5",
