@@ -80,6 +80,7 @@
               },
               {
                 "group": "시리즈",
+                "hidden": true,
                 "pages": [
                   "file-5",
                   "file-6"
