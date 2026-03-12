@@ -72,7 +72,6 @@
                 "group": "자동화 에이전트",
                 "pages": [
                   "automation-agent/what-is",
-                  "",
                   "automation-agent/output",
                   "file-4",
                   "automation-agent/check-series"
