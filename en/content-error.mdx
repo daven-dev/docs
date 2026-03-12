@@ -1,0 +1,34 @@
+---
+title: "Contents Generation Error"
+mode: "wide"
+---
+
+<Info>
+  Tokens are not deducted for any content that resulted in an error.
+</Info>
+
+When generating AI content, errors can occur due to user input or unexpected server issues. Results may vary slightly depending on the chosen AI model's guidelines.
+
+### Content that may be restricted from generation
+
+- Pornography or excessive nudity
+- Hateful or severely offensive content that attacks or dehumanizes groups based on race, ethnicity, national origin, religion, serious illness or disability, gender, age, or sexual orientation
+- Explicit violence or gore
+- Content that incites, glorifies, or threatens violence
+- Illegal activities or goods
+- Self-harm or encouragement of self-harm
+- Minor nudity or sexualization of minors
+- For Google Veo3, generation may be restricted for uploading minor photos alone
+- Terrorism or violent extremism
+- Harmful misinformation, fraud, or deceptive content in the real world
+- Others' private information
+- For the Sora (OpenAI) model, generation may be restricted when attaching photorealistic images of real people.
+
+### Generation error messages
+
+| Message                                                                                                                           | Description                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| The server is unstable. Please try again later.                                                                                                     | Occurs when traffic is high and the server is slow.                               |
+| This content may violate OpenAI's content policies.                                                                           | Occurs when OpenAI models (Sora, GPT Image) <br />guidelines are violated.      |
+| Request blocked: The generation was halted during Google safety review. <br />You may try adjusting the prompt and try again. | Occurs when Google models (Nano Banana, Veo 3.1) <br />guidelines are violated. |
+| Failed to generate image.                                                                                                     | Occurs when Google model (Nano Banana) <br />guidelines are violated.          |

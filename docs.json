@@ -14,12 +14,6 @@
         "language": "ko",
         "tabs": [
           {
-            "tab": "새소식",
-            "pages": [
-              "file"
-            ]
-          },
-          {
             "tab": "문서",
             "groups": [
               {
@@ -56,6 +50,7 @@
                   "ai-tools/cursor",
                   "ai-tools/file",
                   "ai-tools/file-1",
+                  "ai-tools/windsurf",
                   "ai-tools/file-6",
                   {
                     "group": "시네앱 사용법",
@@ -66,24 +61,6 @@
                       "ai-tools/file-3"
                     ]
                   }
-                ]
-              },
-              {
-                "group": "자동화 에이전트",
-                "pages": [
-                  "file-1",
-                  "file-2",
-                  "file-3",
-                  "file-4",
-                  "file-7"
-                ]
-              },
-              {
-                "group": "시리즈",
-                "hidden": true,
-                "pages": [
-                  "file-5",
-                  "file-6"
                 ]
               }
             ]
