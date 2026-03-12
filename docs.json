@@ -14,6 +14,12 @@
         "language": "ko",
         "tabs": [
           {
+            "tab": "새소식",
+            "pages": [
+              "file"
+            ]
+          },
+          {
             "tab": "문서",
             "groups": [
               {
@@ -61,6 +67,23 @@
                       "ai-tools/file-3"
                     ]
                   }
+                ]
+              },
+              {
+                "group": "자동화 에이전트",
+                "pages": [
+                  "file-1",
+                  "file-2",
+                  "file-3",
+                  "file-4",
+                  "file-7"
+                ]
+              },
+              {
+                "group": "시리즈",
+                "pages": [
+                  "file-5",
+                  "file-6"
                 ]
               }
             ]
