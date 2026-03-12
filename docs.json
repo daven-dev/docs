@@ -16,7 +16,7 @@
           {
             "tab": "새소식",
             "pages": [
-              "file"
+              "new-features"
             ]
           },
           {
@@ -51,19 +51,18 @@
               {
                 "group": "사용법",
                 "pages": [
-                  "ai-tools/claude-code",
-                  "ai-tools/ready-action",
-                  "ai-tools/cursor",
-                  "ai-tools/file",
-                  "ai-tools/file-1",
-                  "ai-tools/windsurf",
-                  "ai-tools/file-6",
+                  "how-to/daven",
+                  "how-to/ready-action",
+                  "how-to/conversation",
+                  "how-to/character",
+                  "how-to/copyright",
+                  "how-to/private",
                   {
                     "group": "시네앱 사용법",
                     "pages": [
-                      "ai-tools/file-2",
-                      "ai-tools/file-5",
-                      "ai-tools/file-4",
+                      "how-to/cine-master",
+                      "how-to/cine-sequence",
+                      "how-to/cine-relight",
                       "ai-tools/file-3"
                     ]
                   }
@@ -72,15 +71,16 @@
               {
                 "group": "자동화 에이전트",
                 "pages": [
-                  "file-1",
-                  "file-2",
-                  "file-3",
+                  "automation-agent/what-is",
+                  "",
+                  "automation-agent/output",
                   "file-4",
-                  "file-7"
+                  "automation-agent/check-series"
                 ]
               },
               {
                 "group": "시리즈",
+                "hidden": true,
                 "pages": [
                   "file-5",
                   "file-6"
