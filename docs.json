@@ -9,61 +9,125 @@
   },
   "favicon": "https://davenapp.s3.us-west-2.amazonaws.com/logos/daven_logo_only.png",
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "문서",
-        "groups": [
+        "language": "ko",
+        "tabs": [
           {
-            "group": "시작하기",
+            "tab": "새소식",
             "pages": [
-              "file",
-              "file-5",
-              "file-4"
+              "file"
             ]
           },
           {
-            "group": "쿠폰",
-            "pages": [
-              "file-1",
-              "file-9"
+            "tab": "문서",
+            "groups": [
+              {
+                "group": "시작하기",
+                "pages": [
+                  "welcome-daven",
+                  "quick-start",
+                  "membership"
+                ]
+              },
+              {
+                "group": "쿠폰",
+                "pages": [
+                  "coupons",
+                  "reward-tokens"
+                ]
+              },
+              {
+                "group": "참고자료",
+                "pages": [
+                  "content-error"
+                ]
+              },
+              {
+                "group": "새소식",
+                "pages": []
+              }
             ]
           },
           {
-            "group": "콘텐츠 생성",
-            "hidden": true,
-            "pages": [
-              "essentials/ai",
-              "essentials/untitled-page"
-            ]
-          },
-          {
-            "group": "참고자료",
-            "pages": [
-              "file-2"
+            "tab": "이용 가이드",
+            "groups": [
+              {
+                "group": "사용법",
+                "pages": [
+                  "ai-tools/claude-code",
+                  "ai-tools/ready-action",
+                  "ai-tools/cursor",
+                  "ai-tools/file",
+                  "ai-tools/file-1",
+                  "ai-tools/windsurf",
+                  "ai-tools/file-6",
+                  {
+                    "group": "시네앱 사용법",
+                    "pages": [
+                      "ai-tools/file-2",
+                      "ai-tools/file-5",
+                      "ai-tools/file-4",
+                      "ai-tools/file-3"
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "이용 가이드",
-        "groups": [
+        "language": "en",
+        "tabs": [
           {
-            "group": "사용법",
-            "pages": [
-              "ai-tools/claude-code",
-              "ai-tools/ready-action",
-              "ai-tools/cursor",
-              "ai-tools/file",
-              "ai-tools/file-1",
-              "ai-tools/windsurf",
-              "ai-tools/file-6",
+            "tab": "Docs",
+            "groups": [
               {
-                "group": "시네앱 사용법",
+                "group": "Quick Start",
                 "pages": [
-                  "ai-tools/file-2",
-                  "ai-tools/file-5",
-                  "ai-tools/file-4",
-                  "ai-tools/file-3"
+                  "en/welcome-daven",
+                  "en/quick-start",
+                  "en/membership"
+                ]
+              },
+              {
+                "group": "Coupons",
+                "pages": [
+                  "en/coupons",
+                  "en/reward-tokens"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "en/content-error"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "User Guide",
+            "groups": [
+              {
+                "group": "How-to-use",
+                "pages": [
+                  "en/ai-tools/claude-code",
+                  "en/ai-tools/ready-action",
+                  "en/ai-tools/cursor",
+                  "en/ai-tools/file",
+                  "en/ai-tools/file-1",
+                  "en/ai-tools/windsurf",
+                  "en/ai-tools/file-6",
+                  {
+                    "group": "How to use Cine app",
+                    "pages": [
+                      "en/ai-tools/file-2",
+                      "en/ai-tools/file-5",
+                      "en/ai-tools/file-4",
+                      "en/ai-tools/file-3"
+                    ]
+                  }
                 ]
               }
             ]
