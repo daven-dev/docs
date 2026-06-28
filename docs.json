@@ -98,7 +98,6 @@
               {
                 "group": "Quick Start",
                 "pages": [
-                  "en/welcome-daven",
                   "en/quick-start",
                   "en/membership"
                 ]
@@ -113,7 +112,8 @@
               {
                 "group": "Reference",
                 "pages": [
-                  "en/content-error"
+                  "en/content-error",
+                  "en/unlimited"
                 ]
               }
             ]
