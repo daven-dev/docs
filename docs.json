@@ -93,6 +93,12 @@
         "language": "en",
         "tabs": [
           {
+            "tab": "What's New",
+            "pages": [
+              "en/new-features"
+            ]
+          },
+          {
             "tab": "Docs",
             "groups": [
               {
@@ -129,7 +135,6 @@
                   "en/ai-tools/cursor",
                   "en/ai-tools/file",
                   "en/ai-tools/file-1",
-                  "en/ai-tools/windsurf",
                   "en/ai-tools/file-6",
                   {
                     "group": "How to use Cine app",
@@ -140,6 +145,21 @@
                       "en/ai-tools/file-3"
                     ]
                   }
+                ]
+              },
+              {
+                "group": "Automation Agent",
+                "pages": [
+                  "en/automation-agent/what-is",
+                  "en/automation-agent/output",
+                  "en/automation-agent/check-series"
+                ]
+              },
+              {
+                "group": "Series",
+                "hidden": true,
+                "pages": [
+                  "en/file-5"
                 ]
               }
             ]
