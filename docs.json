@@ -40,7 +40,8 @@
                 "group": "참고자료",
                 "pages": [
                   "content-error",
-                  "unlimited"
+                  "unlimited",
+                  "file"
                 ]
               }
             ]
