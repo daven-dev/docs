@@ -54,25 +54,22 @@ flowchart LR
   </Step>
 
   <Step title="Connect your MCP client (optional)">
-    Add `@davenai/mcp` in the MCP settings of the AI coding platform you use. See the example config under Settings → Developer / MCP.
+    In [ChatGPT / Codex Desktop](https://chatgpt.com/codex), open **Settings → MCP servers → Add server** and connect `@davenai/mcp`. Use **Type: STDIO**.
 
-    ```json
-    {
-      "mcpServers": {
-        "daven": {
-          "command": "npx",
-          "args": ["-y", "@davenai/mcp"],
-          "env": {
-            "DAVEN_API_KEY": "<your-mcp-key>",
-            "DAVEN_WEBAPP_URL": "https://daven.ai",
-            "DAVEN_API_URL": "https://app.daven.ai:3000"
-          }
-        }
-      }
-    }
-    ```
+    <Frame>
+      ![Codex Desktop Daven MCP (STDIO) settings](/images/edu/codex-daven-mcp-stdio.png)
+    </Frame>
 
-    UI and config paths differ by platform. After connecting, the agent can use account, quote, and media tools while you build. App-writing rules live in the MCP tool `daven_guidelines`.
+    | Field | Value |
+    | --- | --- |
+    | Type | **STDIO** |
+    | Name | `daven` |
+    | Command to launch | `npx` |
+    | Arguments | `-y` , `@davenai/mcp` |
+    | Environment variables | `DAVEN_API_KEY` = your key<br />`DAVEN_API_URL` = `https://app.daven.ai:3000`<br />`DAVEN_WEBAPP_URL` = `https://daven.ai` |
+    | Working directory | `/` |
+
+    Save, then restart MCP. Once connected, the agent can use account, quote, and media tools while you build. Follow `daven_guidelines` for app-writing rules.
   </Step>
 </Steps>
 

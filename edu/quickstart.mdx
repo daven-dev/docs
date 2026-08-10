@@ -54,25 +54,22 @@ flowchart LR
   </Step>
 
   <Step title="MCP 클라이언트에 연결 (선택)">
-    본인이 쓰는 AI 코딩 플랫폼의 MCP 설정에 `@davenai/mcp`를 추가합니다. Settings → Developer / MCP에 있는 설정 예시를 참고하세요.
+    [ChatGPT / Codex Desktop](https://chatgpt.com/codex)에서 **Settings → MCP servers → Add server**로 `@davenai/mcp`를 연결합니다. **Type은 STDIO**입니다.
 
-    ```json
-    {
-      "mcpServers": {
-        "daven": {
-          "command": "npx",
-          "args": ["-y", "@davenai/mcp"],
-          "env": {
-            "DAVEN_API_KEY": "<your-mcp-key>",
-            "DAVEN_WEBAPP_URL": "https://daven.ai",
-            "DAVEN_API_URL": "https://app.daven.ai:3000"
-          }
-        }
-      }
-    }
-    ```
+    <Frame>
+      ![Codex Desktop에서 Daven MCP(STDIO) 설정](/images/edu/codex-daven-mcp-stdio.png)
+    </Frame>
 
-    플랫폼마다 설정 UI·파일 경로는 다를 수 있습니다. 연결 후 에이전트가 계정·견적·미디어 도구로 구현을 도울 수 있습니다. 앱 작성 규칙은 MCP의 `daven_guidelines`를 따르면 됩니다.
+    | 필드 | 값 |
+    | --- | --- |
+    | Type | **STDIO** |
+    | Name | `daven` |
+    | Command to launch | `npx` |
+    | Arguments | `-y` , `@davenai/mcp` |
+    | Environment variables | `DAVEN_API_KEY` = 발급한 키<br />`DAVEN_API_URL` = `https://app.daven.ai:3000`<br />`DAVEN_WEBAPP_URL` = `https://daven.ai` |
+    | Working directory | `/` |
+
+    저장한 뒤 MCP를 Restart 합니다. 연결되면 에이전트가 계정·견적·미디어 도구로 구현을 도울 수 있습니다. 앱 작성 규칙은 `daven_guidelines`를 따르면 됩니다.
   </Step>
 </Steps>
 
