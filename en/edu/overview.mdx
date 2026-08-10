@@ -3,21 +3,21 @@ title: "Edu apps overview"
 description: "Architecture, roles, and doc map for DV Edu iframe apps"
 ---
 
-Hub for developers and coding agents building apps that run inside DV Edu.
+Hub for developers shipping education apps into Classroom Hub.
 
 <Info>
-  **One-line contract:** Host your app on HTTPS. Use only the iframe `session` + `proxy` to call Daven. Never put API keys in the browser.
+  **One-line path:** Issue an MCP key → build & host → verify in the [Playground](https://daven.ai/playground) → run in the Edu iframe. Never put API keys in the browser.
 </Info>
 
 <Columns cols={3}>
   <Card title="Quickstart" icon="rocket" href="/en/edu/quickstart" cta="Start" arrow="true">
-    Runtime wiring + smoke call in ~5 minutes
+    Developer journey: key · deploy · Playground · Edu
   </Card>
-  <Card title="Agent spec" icon="robot" href="/en/edu/agent-spec" cta="Open" arrow="true">
-    Deterministic contract for AI implementers
+  <Card title="Session & proxy" icon="link" href="/en/edu/session-proxy" cta="Contract" arrow="true">
+    Classroom iframe runtime
   </Card>
-  <Card title="OpenAPI" icon="brackets-curly" href="/edu/openapi.yaml" cta="YAML" arrow="true">
-    Machine-readable proxy API
+  <Card title="Checklist" icon="list-check" href="/en/edu/checklist" cta="Review" arrow="true">
+    Pre-launch checks
   </Card>
 </Columns>
 

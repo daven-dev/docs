@@ -1,111 +1,189 @@
 ---
 title: "Quickstart"
-description: "Wire Edu session + proxy and call Daven in five minutes"
+description: "From MCP key issuance to Playground testing and Edu classroom embed"
 ---
 
-Goal: even outside the iframe, **session + proxy** → successful account call means smoke pass.
+This is the **developer path** for shipping an education app into the classroom. Whether you vibe-code with Cursor or Claude, the sequence is the same.
 
-<Tip>
-  Coding agents: load [Agent spec](/en/edu/agent-spec) and [`llms.txt`](/en/edu/llms.txt) first, then run these Steps.
-</Tip>
+```mermaid
+flowchart LR
+  A[Daven account] --> B[MCP key]
+  B --> C[Build app]
+  C --> D[Deploy on Vercel]
+  D --> E[Playground]
+  E --> F[Edu classroom]
+```
+
+<Info>
+  **Goal:** Host an HTTPS app, verify it in the [Playground](https://daven.ai/playground), then run it inside Classroom Hub ([edu.daven.ai](https://edu.daven.ai)).
+</Info>
+
+## Before you begin
+
+| Prerequisite | Notes |
+| --- | --- |
+| Daven account | Sign in at [daven.ai](https://daven.ai) |
+| Token balance | Dev and Playground usage bill **your account tokens** |
+| Hosting | e.g. [Vercel](https://vercel.com) (HTTPS URL) |
+| Editor (optional) | Cursor + `@daven/mcp` for AI-assisted coding |
+
+## Concepts
+
+Align on the vocabulary used across these docs.
+
+<Columns cols={2}>
+  <Card title="Education app" icon="puzzle-piece" type="tip">
+    Your lesson web app. Edu opens it in an iframe. Internally also called an MCP app.
+  </Card>
+  <Card title="MCP key" icon="key" type="note">
+    Developer secret shaped like `dvn_mcp_live_…`. Used for Cursor, local/server proxies, and Playground checks. **Never ship it in the browser bundle.**
+  </Card>
+  <Card title="Playground" icon="flask" type="info">
+    [daven.ai/playground](https://daven.ai/playground) — paste your app URL, pass the checklist, submit to Daven.
+  </Card>
+  <Card title="Classroom Hub (Edu)" icon="school" type="check">
+    [edu.daven.ai](https://edu.daven.ai) — classes, activities, classroom credits. Serves approved apps to students.
+  </Card>
+</Columns>
+
+| Term | Meaning |
+| --- | --- |
+| **`@daven/mcp`** | MCP server for Cursor/Claude. **Dev-time** tools for the agent — not classroom runtime. |
+| **HTTP proxy** | Server path that holds the key when your app calls Daven. Local `:8787` or Vercel `/api/*`. |
+| **Edu MCP proxy** | Classroom endpoint `…/api/v1/mcp-proxy`. Auth is a **session**, not the developer MCP key. |
+| **session / proxy** | Query params Edu appends to the iframe URL. Details: [Session & proxy](/en/edu/session-proxy). |
+
+<Warning>
+  **You do not install MCP on Vercel.** Vercel hosts the **education app**; put the MCP key only in **server** environment variables. Install the MCP server in Cursor (or an equivalent IDE).
+</Warning>
+
+## 1. Account and MCP key
 
 <Steps>
-  <Step title="Host the app">
-    Deploy on HTTPS (e.g. Vercel). Localhost works for development.
-
-    Hub iframe sandbox is `allow-scripts allow-forms allow-same-origin`. Do not depend on popups or top-level redirects.
+  <Step title="Sign in to Daven">
+    Log in at [daven.ai](https://daven.ai).
   </Step>
 
-  <Step title="Parse query params">
-    ```ts
-    const params = new URLSearchParams(window.location.search);
-    const session = params.get("session"); // required inside Edu
-    const proxy =
-      params.get("proxy") || "https://edu.daven.ai/api/v1/mcp-proxy";
-    ```
+  <Step title="Create a key under Developer / MCP">
+    Open **Settings → Developer / MCP** and generate a key.
 
-    <AccordionGroup>
-      <Accordion title="Production proxy">
-        `https://edu.daven.ai/api/v1/mcp-proxy`
-      </Accordion>
-      <Accordion title="Local Hub API">
-        `http://localhost:3001/api/v1/mcp-proxy`
-      </Accordion>
-    </AccordionGroup>
+    - Format: `dvn_mcp_live_…` (full value shown once)
+    - Up to 5 active keys per account
+    - Env var name: `DAVEN_API_KEY`
+
+    Store it securely. Do not commit it, put it in frontend env (`VITE_*`), or ship it in the client bundle.
   </Step>
 
-  <Step title="Session-aware client">
-    <CodeGroup>
+  <Step title="Connect Cursor MCP (optional)">
+    For vibe-coding, paste the Cursor snippet from Settings. It looks like:
 
-    ```ts daven.ts
-    export async function davenFetch(
-      proxy: string,
-      session: string | null,
-      path: string,
-      init?: RequestInit,
-    ) {
-      const base = proxy.replace(/\/$/, "");
-      const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
-      const res = await fetch(url, {
-        ...init,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          ...(session
-            ? {
-                Authorization: `Bearer ${session}`,
-                "X-Edu-Session": session,
-              }
-            : {}),
-          ...(init?.headers ?? {}),
-        },
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json?.error?.message || res.statusText);
+    ```json
+    {
+      "mcpServers": {
+        "daven": {
+          "command": "npx",
+          "args": ["-y", "@daven/mcp"],
+          "env": {
+            "DAVEN_API_KEY": "<your-mcp-key>",
+            "DAVEN_WEBAPP_URL": "https://daven.ai",
+            "DAVEN_API_URL": "https://api.daven.ai"
+          }
+        }
       }
-      return json;
     }
     ```
 
-    ```bash curl
-    curl -sS "$PROXY/api/account" \
-      -H "Authorization: Bearer $SESSION" \
-      -H "X-Edu-Session: $SESSION"
-    ```
-
-    </CodeGroup>
-  </Step>
-
-  <Step title="Smoke test">
-    ```ts
-    const account = await davenFetch(proxy, session, "/api/account");
-    // expect: account.status === "success"
-    ```
-
-    Without the Hub UI, run Hub API and open the app with a dev session token.
-
-    ```bash
-    cd dv-edu/apps/api && npm run start:dev
-    ```
-  </Step>
-
-  <Step title="Generation loop">
-    1. `POST /api/quote`
-    2. `POST /api/media/create`
-    3. Poll `POST /api/media/get`
-    4. Preview / download
-
-    Details: [Proxy API](/en/edu/proxy-api) · [OpenAPI](/edu/openapi.yaml)
+    The agent can call account, quote, and media tools while you build. That path is **separate from** the finished app’s runtime.
   </Step>
 </Steps>
 
+## 2. Build the education app
+
+Recommended pattern: **browser → server proxy → Daven**. Keep the key only on the proxy (or Vercel serverless).
+
+<Columns cols={2}>
+  <Card title="Starter / local lab" icon="code" href="/en/edu/reference-app">
+    `dv_mcp` monorepo — `starter/`, reference `apps/sihwa_project`, local proxy `:8787`
+  </Card>
+  <Card title="Security rule" icon="shield" type="warning">
+    Do not call `daven.ai` / `app.daven.ai` directly from the client. Keyless calls fail — or leak the key.
+  </Card>
+</Columns>
+
+Local quick start:
+
+```bash
+cd dv_mcp
+cp .env.example .env   # DAVEN_API_KEY, DAVEN_WEBAPP_URL, DAVEN_API_URL
+npm install
+npm run starter        # proxy + React
+```
+
+UI is up to you. For classroom embed, the app must later read Edu’s `session` / `proxy`. → [Session & proxy](/en/edu/session-proxy)
+
+## 3. Deploy on Vercel
+
+Playground, review, and Edu embed need a **public HTTPS URL**.
+
+1. Connect the project on Vercel (Root Directory = app folder, e.g. `apps/sihwa_project`).
+2. Set **server-only** env vars (no `VITE_` prefix):
+
+| Variable | Example |
+| --- | --- |
+| `DAVEN_API_KEY` | `dvn_mcp_live_…` |
+| `DAVEN_WEBAPP_URL` | `https://daven.ai` |
+| `DAVEN_API_URL` | `https://api.daven.ai` |
+
+3. Confirm the app reaches Daven through same-origin `/api/*` (or an equivalent serverless proxy).
+4. If you have a health route, expect `hasKey: true`.
+
+Reference: `dv_mcp/apps/sihwa_project/DEPLOY.md`
+
+## 4. Verify in Playground
+
+1. Open [daven.ai/playground](https://daven.ai/playground).
+2. Paste the app URL — local (`http://localhost:…`) or Vercel Preview/Production.
+3. Pass the checklist with your MCP key (account, quote, …).
+4. **Submit to Daven** to enter the review queue.
+
+<Tip>
+  Playground AI usage bills **your developer tokens**. In class, billing switches to **classroom credits**.
+</Tip>
+
+## 5. After approval — use in Edu
+
+1. Daven Master approves the app and sets `hostedUrl` (and related fields).
+2. Teachers publish the education-app activity in Classroom Hub.
+3. When a student opens it, Edu loads your app in an iframe:
+
+```text
+https://your-app.vercel.app/?session={TOKEN}&proxy=https://edu.daven.ai/api/v1/mcp-proxy
+```
+
+At runtime the app calls generation APIs with **session + Edu MCP proxy**, not the MCP key. Details: [Proxy API](/en/edu/proxy-api) · [Checklist](/en/edu/checklist)
+
 ## Done when
 
-| # | Pass criteria |
+| Stage | Pass criteria |
 | --- | --- |
-| 1 | `GET {proxy}/api/account` → HTTP 200, `status === "success"` |
-| 2 | Same call without session → **401** |
-| 3 | Network shows **Edu proxy host** only (no direct `daven.ai`) |
+| Key | `dvn_mcp_live_…` issued in Settings; never exposed to the client |
+| App | Account / generation works via proxy |
+| Deploy | Same behavior on HTTPS |
+| Playground | Checklist passed + Submit |
+| Edu | Works in iframe with `session` (no key) |
 
-Next: [Session & proxy](/en/edu/session-proxy) · [Checklist](/en/edu/checklist)
+## Next
+
+<Columns cols={3}>
+  <Card title="Session & proxy" icon="link" href="/en/edu/session-proxy" arrow="true">
+    iframe runtime contract
+  </Card>
+  <Card title="Checklist" icon="list-check" href="/en/edu/checklist" arrow="true">
+    Pre-launch review
+  </Card>
+  <Card title="Reference app" icon="code" href="/en/edu/reference-app" arrow="true">
+    Sihwa Studio
+  </Card>
+</Columns>
+
+For coding-agent machine contracts, see [Agent spec](/en/edu/agent-spec) and [`llms.txt`](/en/edu/llms.txt).

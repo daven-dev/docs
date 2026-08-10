@@ -3,21 +3,21 @@ title: "교육앱 개요"
 description: "DV Edu iframe 교육앱 구조, 역할 분리, 문서 지도"
 ---
 
-Edu에 붙는 교육앱을 만드는 개발자·코딩 에이전트를 위한 허브입니다.
+교육앱을 만들고 Classroom Hub에 올리는 개발자를 위한 허브입니다.
 
 <Info>
-  **한 줄 계약:** 앱은 HTTPS로 호스팅되고, Edu iframe의 `session` + `proxy`만으로 Daven을 호출합니다. 브라우저에 API 키를 두지 마세요.
+  **한 줄 경로:** MCP 키 발급 → 앱 제작·배포 → [Playground](https://daven.ai/playground) 검증 → Edu iframe. 브라우저에 API 키를 두지 마세요.
 </Info>
 
 <Columns cols={3}>
   <Card title="빠른 시작" icon="rocket" href="/edu/quickstart" cta="시작하기" arrow="true">
-    5분 안에 runtime 연결 + 스모크 호출
+    키 · 배포 · Playground · Edu까지 개발자 여정
   </Card>
-  <Card title="에이전트 스펙" icon="robot" href="/edu/agent-spec" cta="스펙 보기" arrow="true">
-    AI가 그대로 구현할 결정적 계약
+  <Card title="세션과 proxy" icon="link" href="/edu/session-proxy" cta="계약" arrow="true">
+    교실 iframe 런타임
   </Card>
-  <Card title="OpenAPI" icon="brackets-curly" href="/edu/openapi.yaml" cta="YAML" arrow="true">
-    기계가 파싱하는 Proxy API
+  <Card title="연동 체크리스트" icon="list-check" href="/edu/checklist" cta="점검" arrow="true">
+    출시 전 확인 항목
   </Card>
 </Columns>
 
