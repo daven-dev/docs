@@ -1,6 +1,8 @@
 # DV Edu — Education Apps (for LLMs / coding agents)
 
-> Canonical human docs: /edu/overview · Machine API: /edu/openapi.yaml · Agent page: /edu/agent-spec
+> Prefer live tool: @daven/mcp → daven_guidelines(topic=edu_app)
+> Human docs (no session deep-dive): /edu/quickstart
+> Canonical dumps: /edu/openapi.yaml · /edu/agent-spec
 
 ## Product
 - Classroom Hub = edu.daven.ai (dv-edu). Hosts classes, activities, credits.

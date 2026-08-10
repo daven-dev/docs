@@ -1,77 +1,33 @@
 ---
 title: "Edu apps overview"
-description: "Architecture, roles, and doc map for DV Edu iframe apps"
+description: "Build education apps — from MCP key to Playground submit"
 ---
 
-Hub for developers shipping education apps into Classroom Hub.
+Developer docs for building an education app and submitting it to Daven.
 
-<Info>
-  **One-line path:** Issue an MCP key → build & host → verify in the [Playground](https://daven.ai/playground) → run in the Edu iframe. Never put API keys in the browser.
-</Info>
+**Your job:** issue an MCP key → build & deploy → verify and submit in the [Playground](https://daven.ai/playground).  
+Classroom delivery is handled by Daven. Never put API keys in the browser.
 
-<Columns cols={3}>
-  <Card title="Quickstart" icon="rocket" href="/en/edu/quickstart" cta="Start" arrow="true">
-    Developer journey: key · deploy · Playground · Edu
-  </Card>
-  <Card title="Session & proxy" icon="link" href="/en/edu/session-proxy" cta="Contract" arrow="true">
-    Classroom iframe runtime
-  </Card>
-  <Card title="Checklist" icon="list-check" href="/en/edu/checklist" cta="Review" arrow="true">
-    Pre-launch checks
-  </Card>
-</Columns>
+| Doc | Contents |
+| --- | --- |
+| [Quickstart](/en/edu/quickstart) | Key · build · deploy · submit |
+| [MCP API](/en/edu/proxy-api) | Endpoints · response format |
+| [Checklist](/en/edu/checklist) | Pre-launch review |
+| [Reference app](/en/edu/reference-app) | Sihwa Studio |
 
-## Who builds what
+## Roles
 
-<Columns cols={3}>
-  <Card title="Classroom Hub" icon="school" type="note">
-    `edu.daven.ai` · classes, activities, credits. Opens your app in an iframe.
-  </Card>
-  <Card title="Education app" icon="puzzle-piece" type="tip">
-    Your lesson tool — UI + AI workflow on its own URL.
-  </Card>
-  <Card title="Daven AI" icon="sparkles" type="info">
-    Image / voice / music generation. Call only through the **Edu MCP proxy**.
-  </Card>
-</Columns>
-
-## Doc map
-
-<Columns cols={2}>
-  <Card title="Session & proxy" icon="link" href="/en/edu/session-proxy">
-    Query params · headers · iframe sandbox
-  </Card>
-  <Card title="Proxy API" icon="cloud" href="/en/edu/proxy-api">
-    Endpoints · envelopes · curl / TS
-  </Card>
-  <Card title="Checklist" icon="list-check" href="/en/edu/checklist">
-    CORS · registration · security · classroom UX
-  </Card>
-  <Card title="Reference app" icon="code" href="/en/edu/reference-app">
-    Sihwa Studio copy points
-  </Card>
-</Columns>
+| Piece | Role |
+| --- | --- |
+| Education app | The lesson web app you build |
+| Daven Playground | Verify and submit the app |
+| Classroom Hub (Edu) | Where approved apps are used in class |
+| Daven AI | Image / voice / music generation |
 
 ## Principles
 
-<Check>
-  The Hub holds keys. Your app only forwards a session token.
-</Check>
-<Check>
-  Edu opens your app with `?session=&proxy=`.
-</Check>
-<Check>
-  AI assists — student-authored text stays primary.
-</Check>
+- Keep the MCP key on the server only.
+- Verify in Playground, then Submit.
+- AI assists — student-authored text stays primary.
 
-<Warning>
-  Session issuance, approved-app registry, and live credit billing continue to evolve on the Hub. App developers only need to follow **this tab’s contract**.
-</Warning>
-
-## For AI / tools
-
-| Resource | Path |
-| --- | --- |
-| LLM summary | [`/en/edu/llms.txt`](/en/edu/llms.txt) |
-| OpenAPI 3.1 | [`/edu/openapi.yaml`](/edu/openapi.yaml) |
-| Deterministic spec | [Agent spec](/en/edu/agent-spec) |
+When vibe-coding in Cursor, the agent follows `@daven/mcp` tool `daven_guidelines`.

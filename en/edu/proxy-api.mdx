@@ -1,126 +1,99 @@
 ---
-title: "Proxy API"
-description: "Edu MCP proxy endpoints, envelopes, examples"
+title: "API"
+description: "MCP / Edu endpoints and response format"
 ---
 
-Base URL = the iframe `proxy` value.
+Example base URL:
 
 ```text
-{PROXY_BASE}/api/...
+https://edu.daven.ai/api/v1/mcp-proxy
 ```
 
-<Info>
-  Machine schema: [`/edu/openapi.yaml`](/edu/openapi.yaml) · Agent dump: [`/en/edu/llms.txt`](/en/edu/llms.txt)
-</Info>
+OpenAPI: [`/edu/openapi.yaml`](/edu/openapi.yaml)
 
 ## Endpoints
 
-| Method | Path | Auth | Purpose |
+| Method | Path | Auth | Description |
 | --- | --- | --- | --- |
-| `GET` | `/health` | none | Health |
-| `GET` | `/api/account` | session | Account / quota |
-| `POST` | `/api/quote` | session | Pre-generation quote |
-| `POST` | `/api/upload-url` | session | Upload URL |
-| `POST` | `/api/media/create` | session | Start job |
-| `POST` | `/api/media/get` | session | Poll status |
-| `GET` | `/api/catalog` | session | Catalog (`kind`, `query`) |
+| `GET` | `/health` | none | Health check |
+| `GET` | `/api/account` | required | Account / quota |
+| `POST` | `/api/quote` | required | Pre-generation quote |
+| `POST` | `/api/upload-url` | required | Issue upload URL |
+| `POST` | `/api/media/create` | required | Start generation job |
+| `POST` | `/api/media/get` | required | Poll generation status |
+| `GET` | `/api/catalog` | required | Catalog (`kind`, `query`) |
 
-## Response envelope
+Request body fields vary by model/tool. Use the same family as Daven Playground / `@daven/mcp` tool schemas.
 
-<Tabs>
-  <Tab title="Success">
-    ```json
-    {
-      "status": "success",
-      "data": {},
-      "code": "",
-      "message": ""
-    }
-    ```
-  </Tab>
-  <Tab title="Error">
-    ```json
-    {
-      "status": "error",
-      "error": {
-        "code": "AUTH_001",
-        "message": "Invalid Edu session",
-        "detail": "optional"
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+## Response format
+
+### Success
+
+```json
+{
+  "status": "success",
+  "data": {},
+  "code": "",
+  "message": ""
+}
+```
+
+### Error
+
+```json
+{
+  "status": "error",
+  "error": {
+    "code": "AUTH_001",
+    "message": "…",
+    "detail": "optional"
+  }
+}
+```
 
 | HTTP | Meaning |
 | --- | --- |
-| `200` | Success (still check body `status`) |
-| `401` | Missing / invalid session |
+| `200` | Success (also check body `status`) |
+| `401` | Auth failed |
 
 ## Examples
 
 <CodeGroup>
 
 ```bash Account
-curl -sS "$PROXY/api/account" \
-  -H "Authorization: Bearer $SESSION" \
-  -H "X-Edu-Session: $SESSION"
+curl -sS "$BASE/api/account" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Edu-Session: $TOKEN"
 ```
 
 ```bash Quote
-curl -sS -X POST "$PROXY/api/quote" \
-  -H "Authorization: Bearer $SESSION" \
-  -H "X-Edu-Session: $SESSION" \
+curl -sS -X POST "$BASE/api/quote" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Edu-Session: $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"/* model-specific fields */": true}'
+  -d '{}'
 ```
 
 ```bash Media create
-curl -sS -X POST "$PROXY/api/media/create" \
-  -H "Authorization: Bearer $SESSION" \
-  -H "X-Edu-Session: $SESSION" \
+curl -sS -X POST "$BASE/api/media/create" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Edu-Session: $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"/* model-specific fields */": true}'
+  -d '{}'
 ```
 
 ```bash Media get
-curl -sS -X POST "$PROXY/api/media/get" \
-  -H "Authorization: Bearer $SESSION" \
-  -H "X-Edu-Session: $SESSION" \
+curl -sS -X POST "$BASE/api/media/get" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Edu-Session: $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"id":"MEDIA_OR_JOB_ID"}'
 ```
 
 ```bash Catalog
-curl -sS "$PROXY/api/catalog?kind=voices" \
-  -H "Authorization: Bearer $SESSION" \
-  -H "X-Edu-Session: $SESSION"
+curl -sS "$BASE/api/catalog?kind=voices" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Edu-Session: $TOKEN"
 ```
 
 </CodeGroup>
-
-## Recommended flow
-
-```mermaid
-sequenceDiagram
-  participant App as Education app
-  participant Proxy as Edu MCP proxy
-  participant Daven as Daven AI
-
-  App->>Proxy: GET /api/account
-  Proxy->>Daven: account (server key)
-  Daven-->>Proxy: data
-  Proxy-->>App: success envelope
-
-  App->>Proxy: POST /api/quote
-  App->>Proxy: POST /api/media/create
-  loop poll
-    App->>Proxy: POST /api/media/get
-  end
-```
-
-<Tip>
-  Request bodies vary by model/tool — same family as Daven Playground / MCP tools. Edu apps only need this **path + auth** contract.
-</Tip>
-
-Hub implementation: `dv-edu` → `apps/api/src/mcp-proxy/`

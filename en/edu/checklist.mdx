@@ -1,56 +1,31 @@
 ---
 title: "Integration checklist"
-description: "Ship checklist for tech, security, and classroom UX"
+description: "Pre-submit tech, security, and classroom UX checks"
 ---
 
-Check everything before launch.
+Check these before Submit.
 
 ## Engineering
 
-<AccordionGroup>
-  <Accordion title="URL · session · proxy">
-    - [ ] Read `session` and `proxy` from search params
-    - [ ] All Daven calls go to `{proxy}/…`
-    - [ ] Send `Authorization` + `X-Edu-Session`
-    - [ ] Clear empty/guidance UI when session is missing (no crash)
-  </Accordion>
-  <Accordion title="iframe · CORS">
-    - [ ] Works under sandbox (no required popups)
-    - [ ] App origin CORS allows Edu / local Hub
-    - [ ] Cookies are not required for the default path
-  </Accordion>
-  <Accordion title="Generation UX">
-    - [ ] quote → create → poll loop
-    - [ ] Skeleton / progress while waiting (avoid bare “Loading…”)
-    - [ ] Retry + human-readable errors
-  </Accordion>
-</AccordionGroup>
+- [ ] MCP key only in server env (no `VITE_` / client env)
+- [ ] Browser never calls Daven APIs with the key
+- [ ] App works on HTTPS (or localhost for local checks)
+- [ ] Generation flow: quote → create → poll → preview/download
+- [ ] Waiting and error UI are clear (no crashes)
 
-## Hub registration
+## Submit
 
-- [ ] Activity has the **hosted URL**
-- [ ] Local: confirm `http://localhost:…` is allowed
-- [ ] Production: HTTPS + stable domain
+- [ ] [Playground](https://daven.ai/playground) checklist passed
+- [ ] **Submit to Daven** completed
 
 ## Security
 
-<Warning>
-  - [ ] No MCP / Daven secrets in the frontend  
-  - [ ] No full tokens in logs or error UI  
-  - [ ] Never forward the session off-platform
-</Warning>
+- [ ] No MCP / Daven secrets in the frontend
+- [ ] No full secrets in logs or error UI
 
 ## Classroom UX
 
 - [ ] EN / KO (or target locales) labels
 - [ ] AI never overwrites student text without an explicit action
 - [ ] Preview / download / regenerate paths
-- [ ] Usable inside iframe on laptop and phone viewports
-
-## Smoke
-
-| # | Expect |
-| --- | --- |
-| Account | With session → 200 + `success` |
-| Auth | Without session → 401 |
-| Network | Proxy host only |
+- [ ] Usable on laptop and phone

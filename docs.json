@@ -99,16 +99,9 @@
                 ]
               },
               {
-                "group": "계약",
+                "group": "MCP",
                 "pages": [
-                  "edu/session-proxy",
                   "edu/proxy-api"
-                ]
-              },
-              {
-                "group": "에이전트",
-                "pages": [
-                  "edu/agent-spec"
                 ]
               },
               {
@@ -208,16 +201,9 @@
                 ]
               },
               {
-                "group": "Contract",
+                "group": "MCP",
                 "pages": [
-                  "en/edu/session-proxy",
                   "en/edu/proxy-api"
-                ]
-              },
-              {
-                "group": "Agents",
-                "pages": [
-                  "en/edu/agent-spec"
                 ]
               },
               {

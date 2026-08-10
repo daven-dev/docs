@@ -1,44 +1,34 @@
 ---
 title: "Reference app"
-description: "Sihwa Studio — Edu integration reference"
+description: "Sihwa Studio — education app reference"
 ---
 
-**Sihwa Studio** is the reference for Edu iframe + proxy.
+**Sihwa Studio** is a reference for building, deploying, and submitting an education app.
 
-<Columns cols={2}>
-  <Card title="Sample host" icon="globe" href="https://sihwa-project-teal.vercel.app" cta="Open" arrow="true">
-    Deployed example app
-  </Card>
-  <Card title="Source" icon="github" type="tip">
-    `dv_mcp/apps/sihwa_project`
-  </Card>
-</Columns>
+| | |
+| --- | --- |
+| Sample host | [sihwa-project-teal.vercel.app](https://sihwa-project-teal.vercel.app) |
+| Source | `dv_mcp/apps/sihwa_project` |
 
-## Files to copy
+## What to copy
 
 | File | Role |
 | --- | --- |
-| `src/lib/daven-config.ts` | Parse `session` / `proxy`, default proxy |
-| `src/lib/daven.ts` | Session headers + `davenFetch` |
+| `src/lib/daven.ts` | Server-mediated Daven calls |
 | `src/app/page.tsx` (and related UI) | Lesson flow example |
+| `DEPLOY.md` | Vercel deploy and env vars |
 
-## Local three processes
+## Run locally
 
 ```bash
-# 1) Hub API — :3001
-cd dv-edu/apps/api && npm run start:dev
-
-# 2) Hub Web — :3000
-cd dv-edu/apps/web && npm run dev
-
-# 3) App — e.g. :3010
-cd dv_mcp/apps/sihwa_project && npm run dev
+cd dv_mcp
+cp .env.example .env   # DAVEN_API_KEY, etc.
+npm install
+npm run sihwa          # or npm run dev in apps/sihwa_project
 ```
 
-Register the app origin on the activity; Edu appends `session` and `proxy` when opening it.
+After deploy, paste the URL into the [Playground](https://daven.ai/playground) to verify and submit.
 
-<Tip>
-  You can redesign the UI. Reuse the **config + fetch** layer for the shortest integration time.
-</Tip>
+You can redesign the UI. Keep the pattern of **calling Daven from the server with the key**.
 
-Related: [Quickstart](/en/edu/quickstart) · [Agent spec](/en/edu/agent-spec)
+Related: [Quickstart](/en/edu/quickstart)

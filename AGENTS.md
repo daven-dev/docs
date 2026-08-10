@@ -23,9 +23,12 @@ Developer docs for Edu apps live under `edu/` (KO) and `en/edu/` (EN), tab **교
 
 Machine-readable Edu contract (prefer for coding agents):
 
+- Live: `@daven/mcp` tool `daven_guidelines` (`topic=edu_app`)
 - `edu/llms.txt` / `en/edu/llms.txt`
 - `edu/openapi.yaml`
 - `edu/agent-spec.mdx` / `en/edu/agent-spec.mdx`
+
+Human Edu docs cover developer actions (key, build, deploy, Playground submit) plus an **MCP** nav group for endpoint reference (`edu/proxy-api`) — endpoints and envelopes only, no recommended-flow diagrams and no “contract” wording. Hub delivery mechanics stay in `@daven/mcp` `daven_guidelines` (and optional unlisted pages like `edu/agent-spec`, `edu/session-proxy`, `edu/llms.txt`).
 
 Prefer Mintlify components (`Card`, `Columns`, `Steps`, `Tabs`, `CodeGroup`, `Accordion`, callouts) on Edu pages — keep them scannable, not long prose.
 
