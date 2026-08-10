@@ -31,8 +31,6 @@ Prefer Mintlify components (`Card`, `Columns`, `Steps`, `Tabs`, `CodeGroup`, `Ac
 
 ## Style preferences
 
-<!-- Add any project-specific style rules below -->
-
 - Use active voice and second person ("you")
 - Keep sentences concise — one idea per sentence
 - Use sentence case for headings
@@ -41,5 +39,4 @@ Prefer Mintlify components (`Card`, `Columns`, `Steps`, `Tabs`, `CodeGroup`, `Ac
 
 ## Content boundaries
 
-<!-- Define what should and shouldn't be documented -->
-<!-- Example: Don't document internal admin features -->
+- Prefer product-facing developer docs; skip undocumented internal admin features unless asked

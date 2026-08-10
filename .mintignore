@@ -5,3 +5,7 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Agent / internal instructions (not site pages)
+AGENTS.md
+**/AGENTS.md
