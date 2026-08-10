@@ -20,20 +20,20 @@ flowchart LR
 | Daven account | Sign in at [daven.ai](https://daven.ai) |
 | Token balance | Dev and Playground usage bill **your account tokens** |
 | Hosting | e.g. [Vercel](https://vercel.com) (HTTPS URL) |
-| Editor (optional) | Cursor + `@daven/mcp` for AI-assisted coding |
+| MCP client (optional) | Connect `@daven/mcp` in the AI coding tool you already use |
 
 ## Concepts
 
 | Term | Meaning |
 | --- | --- |
 | Education app | Web app for lessons. Internally also called an MCP app. |
-| MCP key | Developer secret `dvn_mcp_live_…`. Used for Cursor, server-side calls, and Playground. Never put it in the browser. |
+| MCP key | Developer secret `dvn_mcp_live_…`. Used for your MCP client, server-side calls, and Playground. Never put it in the browser. |
 | Playground | [daven.ai/playground](https://daven.ai/playground) — verify your app and submit it to Daven |
 | Classroom Hub (Edu) | [edu.daven.ai](https://edu.daven.ai) — where approved apps are used in class |
-| `@daven/mcp` | MCP server for Cursor/Claude so the agent can call Daven tools while you build |
+| `@daven/mcp` | MCP server so your AI coding tool can call Daven while you build |
 
 <Warning>
-  You do not install MCP on Vercel. Deploy the education app on Vercel and keep the MCP key in **server** env vars. Connect the MCP server in Cursor (or an equivalent IDE).
+  You do not install MCP on Vercel. Deploy the education app on Vercel and keep the MCP key in **server** env vars. Connect the MCP server in the AI coding platform you use.
 </Warning>
 
 ## 1. Account and MCP key
@@ -53,8 +53,8 @@ flowchart LR
     Store it securely. Do not commit it, put it in frontend env (`VITE_*`), or ship it in the client bundle.
   </Step>
 
-  <Step title="Connect Cursor MCP (optional)">
-    For vibe-coding, paste the Cursor snippet from Settings.
+  <Step title="Connect your MCP client (optional)">
+    Add `@daven/mcp` in the MCP settings of the AI coding platform you use. See the example config under Settings → Developer / MCP.
 
     ```json
     {
@@ -72,7 +72,7 @@ flowchart LR
     }
     ```
 
-    The agent can use account, quote, and media tools while you build. App-writing rules live in the MCP tool `daven_guidelines`.
+    UI and config paths differ by platform. After connecting, the agent can use account, quote, and media tools while you build. App-writing rules live in the MCP tool `daven_guidelines`.
   </Step>
 </Steps>
 
