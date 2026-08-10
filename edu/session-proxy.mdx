@@ -1,0 +1,66 @@
+---
+title: "세션과 proxy"
+description: "Edu iframe URL 계약, 인증 헤더, sandbox"
+---
+
+교육앱 런타임 계약의 핵심입니다. 이 페이지를 지키면 Hub 구현 세부와 독립적으로 동작합니다.
+
+## URL 계약
+
+Edu는 앱을 이렇게 엽니다.
+
+```text
+{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}
+```
+
+| 파라미터 | 필수 | 설명 |
+| --- | --- | --- |
+| `session` | Edu 안에서는 예 | 학생/교사용 런타임 토큰 |
+| `proxy` | 권장 | MCP proxy base. 없으면 프로덕션 기본값 |
+
+<Columns cols={2}>
+  <Card title="프로덕션" icon="globe" type="info">
+    `https://edu.daven.ai/api/v1/mcp-proxy`
+  </Card>
+  <Card title="로컬" icon="laptop" type="note">
+    `http://localhost:3001/api/v1/mcp-proxy`
+  </Card>
+</Columns>
+
+<Warning>
+  브라우저·프론트 env에 MCP / Daven API 키를 넣지 마세요. 키는 Hub(서버)만 보관합니다.
+</Warning>
+
+## 인증 헤더
+
+요청마다 세션을 실어 보냅니다. **둘 다** 보내는 것을 권장합니다.
+
+```http
+Authorization: Bearer {session}
+X-Edu-Session: {session}
+```
+
+일부 GET은 `?session=` 쿼리도 허용합니다. 헤더를 우선하세요.
+
+## iframe sandbox
+
+Hub iframe은 대략:
+
+```html
+sandbox="allow-scripts allow-forms allow-same-origin"
+```
+
+| 해도 됨 | 하지 마세요 |
+| --- | --- |
+| SPA 라우팅, `fetch`, 폼 | 팝업 의존 OAuth |
+| same-origin 스토리지 | top-level 리다이렉트 필수 플로우 |
+| proxy로의 API 호출 | `daven.ai` 직접 호출 |
+
+## 레퍼런스 구현
+
+시화 스튜디오:
+
+- `src/lib/daven-config.ts` — `session` / `proxy` 파싱
+- `src/lib/daven.ts` — 헤더 주입 + fetch
+
+→ [레퍼런스 앱](/edu/reference-app)

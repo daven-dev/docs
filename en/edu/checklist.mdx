@@ -1,0 +1,56 @@
+---
+title: "Integration checklist"
+description: "Ship checklist for tech, security, and classroom UX"
+---
+
+Check everything before launch.
+
+## Engineering
+
+<AccordionGroup>
+  <Accordion title="URL · session · proxy">
+    - [ ] Read `session` and `proxy` from search params
+    - [ ] All Daven calls go to `{proxy}/…`
+    - [ ] Send `Authorization` + `X-Edu-Session`
+    - [ ] Clear empty/guidance UI when session is missing (no crash)
+  </Accordion>
+  <Accordion title="iframe · CORS">
+    - [ ] Works under sandbox (no required popups)
+    - [ ] App origin CORS allows Edu / local Hub
+    - [ ] Cookies are not required for the default path
+  </Accordion>
+  <Accordion title="Generation UX">
+    - [ ] quote → create → poll loop
+    - [ ] Skeleton / progress while waiting (avoid bare “Loading…”)
+    - [ ] Retry + human-readable errors
+  </Accordion>
+</AccordionGroup>
+
+## Hub registration
+
+- [ ] Activity has the **hosted URL**
+- [ ] Local: confirm `http://localhost:…` is allowed
+- [ ] Production: HTTPS + stable domain
+
+## Security
+
+<Warning>
+  - [ ] No MCP / Daven secrets in the frontend  
+  - [ ] No full tokens in logs or error UI  
+  - [ ] Never forward the session off-platform
+</Warning>
+
+## Classroom UX
+
+- [ ] EN / KO (or target locales) labels
+- [ ] AI never overwrites student text without an explicit action
+- [ ] Preview / download / regenerate paths
+- [ ] Usable inside iframe on laptop and phone viewports
+
+## Smoke
+
+| # | Expect |
+| --- | --- |
+| Account | With session → 200 + `success` |
+| Auth | Without session → 401 |
+| Network | Proxy host only |

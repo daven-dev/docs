@@ -1,0 +1,66 @@
+---
+title: "Session & proxy"
+description: "Edu iframe URL contract, auth headers, sandbox"
+---
+
+Core runtime contract for education apps. Follow this page and stay Hub-implementation independent.
+
+## URL contract
+
+Edu opens your app as:
+
+```text
+{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}
+```
+
+| Param | Required | Description |
+| --- | --- | --- |
+| `session` | Yes inside Edu | Student/teacher runtime token |
+| `proxy` | Recommended | MCP proxy base; else production default |
+
+<Columns cols={2}>
+  <Card title="Production" icon="globe" type="info">
+    `https://edu.daven.ai/api/v1/mcp-proxy`
+  </Card>
+  <Card title="Local" icon="laptop" type="note">
+    `http://localhost:3001/api/v1/mcp-proxy`
+  </Card>
+</Columns>
+
+<Warning>
+  Never put MCP / Daven API keys in the browser or frontend env. Only the Hub server holds keys.
+</Warning>
+
+## Auth headers
+
+Send the session on every request. Prefer **both**:
+
+```http
+Authorization: Bearer {session}
+X-Edu-Session: {session}
+```
+
+Some GETs also accept `?session=`. Prefer headers.
+
+## iframe sandbox
+
+Hub iframe is roughly:
+
+```html
+sandbox="allow-scripts allow-forms allow-same-origin"
+```
+
+| Do | Don't |
+| --- | --- |
+| SPA routing, `fetch`, forms | Popup-based OAuth |
+| same-origin storage | Require top-level redirects |
+| Calls to proxy | Direct calls to `daven.ai` |
+
+## Reference
+
+Sihwa Studio:
+
+- `src/lib/daven-config.ts` — parse `session` / `proxy`
+- `src/lib/daven.ts` — inject headers + fetch
+
+→ [Reference app](/en/edu/reference-app)

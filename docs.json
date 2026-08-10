@@ -87,6 +87,38 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "교육앱 개발",
+            "groups": [
+              {
+                "group": "시작하기",
+                "pages": [
+                  "edu/overview",
+                  "edu/quickstart"
+                ]
+              },
+              {
+                "group": "계약",
+                "pages": [
+                  "edu/session-proxy",
+                  "edu/proxy-api"
+                ]
+              },
+              {
+                "group": "에이전트",
+                "pages": [
+                  "edu/agent-spec"
+                ]
+              },
+              {
+                "group": "출시",
+                "pages": [
+                  "edu/checklist",
+                  "edu/reference-app"
+                ]
+              }
+            ]
           }
         ]
       },
@@ -161,6 +193,38 @@
                 "hidden": true,
                 "pages": [
                   "en/file-5"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Edu Apps",
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "en/edu/overview",
+                  "en/edu/quickstart"
+                ]
+              },
+              {
+                "group": "Contract",
+                "pages": [
+                  "en/edu/session-proxy",
+                  "en/edu/proxy-api"
+                ]
+              },
+              {
+                "group": "Agents",
+                "pages": [
+                  "en/edu/agent-spec"
+                ]
+              },
+              {
+                "group": "Launch",
+                "pages": [
+                  "en/edu/checklist",
+                  "en/edu/reference-app"
                 ]
               }
             ]

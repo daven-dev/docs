@@ -1,0 +1,44 @@
+---
+title: "Reference app"
+description: "Sihwa Studio — Edu integration reference"
+---
+
+**Sihwa Studio** is the reference for Edu iframe + proxy.
+
+<Columns cols={2}>
+  <Card title="Sample host" icon="globe" href="https://sihwa-project-teal.vercel.app" cta="Open" arrow="true">
+    Deployed example app
+  </Card>
+  <Card title="Source" icon="github" type="tip">
+    `dv_mcp/apps/sihwa_project`
+  </Card>
+</Columns>
+
+## Files to copy
+
+| File | Role |
+| --- | --- |
+| `src/lib/daven-config.ts` | Parse `session` / `proxy`, default proxy |
+| `src/lib/daven.ts` | Session headers + `davenFetch` |
+| `src/app/page.tsx` (and related UI) | Lesson flow example |
+
+## Local three processes
+
+```bash
+# 1) Hub API — :3001
+cd dv-edu/apps/api && npm run start:dev
+
+# 2) Hub Web — :3000
+cd dv-edu/apps/web && npm run dev
+
+# 3) App — e.g. :3010
+cd dv_mcp/apps/sihwa_project && npm run dev
+```
+
+Register the app origin on the activity; Edu appends `session` and `proxy` when opening it.
+
+<Tip>
+  You can redesign the UI. Reuse the **config + fetch** layer for the shortest integration time.
+</Tip>
+
+Related: [Quickstart](/en/edu/quickstart) · [Agent spec](/en/edu/agent-spec)

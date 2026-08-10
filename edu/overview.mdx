@@ -1,0 +1,79 @@
+---
+title: "교육앱 개요"
+description: "DV Edu iframe 교육앱 구조, 역할 분리, 문서 지도"
+---
+
+Edu에 붙는 교육앱을 만드는 개발자·코딩 에이전트를 위한 허브입니다.
+
+<Info>
+  **한 줄 계약:** 앱은 HTTPS로 호스팅되고, Edu iframe의 `session` + `proxy`만으로 Daven을 호출합니다. 브라우저에 API 키를 두지 마세요.
+</Info>
+
+<Columns cols={3}>
+  <Card title="빠른 시작" icon="rocket" href="/edu/quickstart" cta="시작하기" arrow="true">
+    5분 안에 runtime 연결 + 스모크 호출
+  </Card>
+  <Card title="에이전트 스펙" icon="robot" href="/edu/agent-spec" cta="스펙 보기" arrow="true">
+    AI가 그대로 구현할 결정적 계약
+  </Card>
+  <Card title="OpenAPI" icon="brackets-curly" href="/edu/openapi.yaml" cta="YAML" arrow="true">
+    기계가 파싱하는 Proxy API
+  </Card>
+</Columns>
+
+## 누가 무엇을 만드나
+
+<Columns cols={3}>
+  <Card title="Classroom Hub" icon="school" type="note">
+    `edu.daven.ai` · 학급·활동·권한·크레딧. 앱을 iframe으로 엽니다.
+  </Card>
+  <Card title="교육앱" icon="puzzle-piece" type="tip">
+    당신이 만드는 수업 도구. UI + AI 워크플로. 독립 URL 호스팅.
+  </Card>
+  <Card title="Daven AI" icon="sparkles" type="info">
+    이미지·음성·음악 생성. **Edu MCP proxy** 경유로만 호출.
+  </Card>
+</Columns>
+
+## 문서 지도
+
+<Columns cols={2}>
+  <Card title="세션과 proxy" icon="link" href="/edu/session-proxy">
+    URL 쿼리 · 헤더 · iframe sandbox
+  </Card>
+  <Card title="Proxy API" icon="cloud" href="/edu/proxy-api">
+    엔드포인트 · 응답 envelope · curl/TS
+  </Card>
+  <Card title="연동 체크리스트" icon="list-check" href="/edu/checklist">
+    CORS · 등록 · 보안 · 교실 UX
+  </Card>
+  <Card title="레퍼런스 앱" icon="code" href="/edu/reference-app">
+    시화 스튜디오 복사 포인트
+  </Card>
+</Columns>
+
+## 원칙
+
+<Check>
+  키는 Hub가 보관합니다. 앱은 토큰만 전달합니다.
+</Check>
+<Check>
+  Edu가 `?session=&proxy=`를 붙여 앱을 엽니다.
+</Check>
+<Check>
+  AI는 보조입니다. 학생 원문이 중심이어야 합니다.
+</Check>
+
+<Warning>
+  세션 발급·승인 앱 레지스트리·크레딧 실과금은 Hub에서 계속 고도화 중입니다. 앱 개발자는 **이 탭의 계약**만 지키면 됩니다.
+</Warning>
+
+## AI / 도구용 엔트리
+
+에이전트는 아래를 먼저 읽으세요.
+
+| 리소스 | 경로 |
+| --- | --- |
+| LLM 요약 | [`/edu/llms.txt`](/edu/llms.txt) |
+| OpenAPI 3.1 | [`/edu/openapi.yaml`](/edu/openapi.yaml) |
+| 결정적 스펙 | [에이전트 스펙](/edu/agent-spec) |

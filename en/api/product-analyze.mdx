@@ -1,0 +1,256 @@
+---
+title: "Product Analyze API"
+description: "Extract product title, images, description, and features from any product page URL."
+---
+
+# Product Analyze API
+
+Analyze a product page URL (e-commerce marketplaces or a brand’s own product page) and return structured product data.
+
+This is a public HTTP API served from Daven. Extraction runs asynchronously on Daven’s backend using the same product-URL pipeline as Campaign → Product Add → URL analyze.
+
+Because analysis often takes 30 seconds to a few minutes, the API is **async**: create a task, then poll until it completes.
+
+## Endpoints
+
+| Step | Method | URL |
+| --- | --- | --- |
+| 1. Create | `POST` | `https://daven.ai/api/product-analyze` |
+| 2. Fetch | `POST` | `https://daven.ai/api/product-analyze/fetch` |
+
+| Item | Value |
+| --- | --- |
+| Content-Type | `application/json` |
+| Auth | None — public endpoint |
+
+## 1. Create analysis
+
+### Request body
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | Yes | Product page URL (`http` or `https`). Max length 2048. |
+| `language` | string | No | Output language for text fields (e.g. `en`, `ko`). Defaults to `en`. |
+| `product_url` | string | No | Alias for `url`. |
+
+### Example
+
+```bash
+curl -X POST https://daven.ai/api/product-analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://www.amazon.com/dp/B0EXAMPLE",
+    "language": "en"
+  }'
+```
+
+### Success response
+
+HTTP `200`
+
+```json
+{
+  "status": "success",
+  "data": {
+    "task_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "status": "created"
+  },
+  "code": "",
+  "message": "Task created"
+}
+```
+
+Save `task_id` for the fetch step.
+
+## 2. Fetch result
+
+Poll every **2–3 seconds** until `status` is `completed` (or an error is returned). Typical total wait: **30 seconds to a few minutes**.
+
+### Request body
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | Task id from the create response. |
+
+### Example
+
+```bash
+curl -X POST https://daven.ai/api/product-analyze/fetch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  }'
+```
+
+### Ongoing
+
+```json
+{
+  "status": "success",
+  "data": {
+    "task_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "status": "ongoing"
+  },
+  "code": "",
+  "message": ""
+}
+```
+
+### Completed
+
+```json
+{
+  "status": "success",
+  "data": {
+    "task_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "status": "completed",
+    "title": "Wireless Noise Cancelling Headphones",
+    "image_urls": [
+      "https://example.com/images/product-1.jpg",
+      "https://example.com/images/product-2.jpg"
+    ],
+    "description": "Over-ear headphones with active noise cancelling and 30-hour battery life.",
+    "features": [
+      "Active noise cancelling",
+      "30-hour battery",
+      "Bluetooth 5.3"
+    ]
+  },
+  "code": "",
+  "message": ""
+}
+```
+
+### Result fields (when `status` is `completed`)
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `title` | string | Product title (max 255 chars). |
+| `image_urls` | string[] | Product image URLs (1–24). Primary / hero image is listed first when available. |
+| `description` | string | Product description (max 5000 chars). |
+| `features` | string[] | Feature bullets or key selling points (may be empty). |
+
+## Error response
+
+```json
+{
+  "status": "error",
+  "error": {
+    "code": "PRODUCT_URL_INVALID",
+    "message": "url is required",
+    "detail": ""
+  }
+}
+```
+
+### Common error codes
+
+| HTTP | Code | Meaning |
+| --- | --- | --- |
+| `400` | `PRODUCT_URL_INVALID` | Missing, empty, or invalid `url`. |
+| `400` | `TASK_ID_REQUIRED` | Missing `task_id` on fetch. |
+| `400` | `PRODUCT_URL_NO_IMAGES` | No product images extracted. |
+| `404` | `TASK_NOT_FOUND` | Unknown `task_id`. |
+| `422` | `PRODUCT_URL_UNREACHABLE` | URL could not be fetched. |
+| `422` | `PRODUCT_URL_BLOCKED` | URL blocked (SSRF / private network / policy). |
+| `502` | `PRODUCT_ANALYZE_UPSTREAM_UNAVAILABLE` | Upstream unavailable. |
+| `503` | `E2B_NOT_CONFIGURED` | Analysis backend not configured. |
+| `500` | `PRODUCT_ANALYZE_FAILED` | Analysis failed. |
+
+## Behavior notes
+
+- **Input is always a URL.** Supported targets include major marketplaces (Amazon, Coupang, AliExpress, eBay, and similar) and generic product pages on personal or brand sites.
+- **Async only.** Create returns immediately with `task_id`; poll fetch until `completed`.
+- **Image URLs** are the source / CDN URLs discovered on the page (not re-hosted by Daven).
+- **Language.** When `language` is set, `title`, `description`, and `features` are written in that language when possible.
+- **Model.** Extraction uses E2B + Claude Haiku 4.5 by default.
+
+## CORS
+
+Browser clients may call these endpoints cross-origin. Preflight `OPTIONS` is supported.
+
+## Code examples
+
+### JavaScript (fetch + poll)
+
+```js
+async function analyzeProduct(url, language = "en") {
+  const createRes = await fetch("https://daven.ai/api/product-analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url, language }),
+  });
+  const createJson = await createRes.json();
+  if (createJson.status !== "success") {
+    throw new Error(createJson.error?.message || "Create failed");
+  }
+
+  const taskId = createJson.data.task_id;
+
+  for (let i = 0; i < 120; i++) {
+    await new Promise((r) => setTimeout(r, 2500));
+
+    const fetchRes = await fetch("https://daven.ai/api/product-analyze/fetch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task_id: taskId }),
+    });
+    const fetchJson = await fetchRes.json();
+
+    if (fetchJson.status === "error") {
+      throw new Error(fetchJson.error?.message || "Analyze failed");
+    }
+
+    if (fetchJson.data?.status === "completed") {
+      const { title, image_urls, description, features } = fetchJson.data;
+      return { title, image_urls, description, features };
+    }
+  }
+
+  throw new Error("Timed out waiting for analysis");
+}
+```
+
+### Python
+
+```python
+import time
+import requests
+
+def analyze_product(url: str, language: str = "en") -> dict:
+    create = requests.post(
+        "https://daven.ai/api/product-analyze",
+        json={"url": url, "language": language},
+        timeout=30,
+    ).json()
+    if create.get("status") != "success":
+        raise RuntimeError(create.get("error", {}))
+
+    task_id = create["data"]["task_id"]
+
+    for _ in range(120):
+        time.sleep(2.5)
+        fetch = requests.post(
+            "https://daven.ai/api/product-analyze/fetch",
+            json={"task_id": task_id},
+            timeout=30,
+        ).json()
+        if fetch.get("status") == "error":
+            raise RuntimeError(fetch.get("error", {}))
+        if fetch.get("data", {}).get("status") == "completed":
+            data = fetch["data"]
+            return {
+                "title": data["title"],
+                "image_urls": data["image_urls"],
+                "description": data["description"],
+                "features": data["features"],
+            }
+
+    raise TimeoutError("Timed out waiting for analysis")
+```
+
+## Changelog
+
+| Date | Change |
+| --- | --- |
+| 2026-07-21 | Initial public API (async create + fetch). |

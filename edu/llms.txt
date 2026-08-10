@@ -1,0 +1,81 @@
+# DV Edu — Education Apps (for LLMs / coding agents)
+
+> Canonical human docs: /edu/overview · Machine API: /edu/openapi.yaml · Agent page: /edu/agent-spec
+
+## Product
+- Classroom Hub = edu.daven.ai (dv-edu). Hosts classes, activities, credits.
+- Education app = your HTTPS web app, loaded in an iframe by the Hub.
+- Daven AI = generation backend. Browser must NEVER hold API keys.
+
+## Embed contract (deterministic)
+Edu opens: `{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}`
+- Default PROXY_BASE production: `https://edu.daven.ai/api/v1/mcp-proxy`
+- Local Hub: `http://localhost:3001/api/v1/mcp-proxy`
+- App MUST read `session` + `proxy` from URL search params.
+- App MUST call Daven only via PROXY_BASE (paths below).
+- App MUST send session on requests:
+  - Header `Authorization: Bearer {session}`
+  - AND/OR Header `X-Edu-Session: {session}`
+  - Optional query `?session=` on some GETs
+
+## Forbidden
+- Putting MCP / Daven secrets in frontend env or bundles
+- Calling daven.ai / app.daven.ai directly from the browser in Edu mode
+- Relying on popups / top-level redirects inside iframe
+- Overwriting student-authored text with AI without an explicit user action
+
+## Proxy paths (relative to PROXY_BASE)
+| Method | Path | Auth | Notes |
+| GET | /health | no | health |
+| GET | /api/account | yes | account/quota |
+| POST | /api/quote | yes | JSON body model-specific |
+| POST | /api/upload-url | yes | upload URL |
+| POST | /api/media/create | yes | start job |
+| POST | /api/media/get | yes | poll job |
+| GET | /api/catalog?kind=voices | yes | catalog |
+
+## Response envelope
+Success: `{ "status": "success", "data": ..., "code": "", "message": "" }`
+Error: `{ "status": "error", "error": { "code": string, "message": string, "detail"?: any } }`
+401 = invalid/missing session
+
+## Recommended client flow
+1. quote → 2. media/create → 3. poll media/get → 4. preview/download
+If file upload: upload-url → PUT bytes → create
+
+## Minimal TypeScript client
+```ts
+const params = new URLSearchParams(location.search);
+const session = params.get("session");
+const proxy = (params.get("proxy") || "https://edu.daven.ai/api/v1/mcp-proxy").replace(/\/$/, "");
+async function davenFetch(path: string, init?: RequestInit) {
+  const res = await fetch(`${proxy}${path.startsWith("/") ? path : `/${path}`}`, {
+    ...init,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(session
+        ? { Authorization: `Bearer ${session}`, "X-Edu-Session": session }
+        : {}),
+      ...(init?.headers ?? {}),
+    },
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json?.error?.message || res.statusText);
+  return json;
+}
+```
+
+## Acceptance tests (pass/fail)
+1. With session+proxy in URL, GET `{proxy}/api/account` returns HTTP 200 and `status==="success"`.
+2. Without session headers, same call returns 401.
+3. Network tab shows requests to Edu proxy host, not daven.ai origin.
+4. App renders usable UI inside iframe sandbox (scripts, forms, same-origin).
+
+## Reference implementation
+- Repo: dv_mcp/apps/sihwa_project
+- Key files: src/lib/daven-config.ts, src/lib/daven.ts
+- Example host: https://sihwa-project-teal.vercel.app
+
+## OpenAPI
+- /edu/openapi.yaml

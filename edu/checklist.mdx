@@ -1,0 +1,56 @@
+---
+title: "연동 체크리스트"
+description: "출시 전 기술·보안·교실 UX 확인"
+---
+
+출시 전에 아래를 모두 체크하세요.
+
+## 기술
+
+<AccordionGroup>
+  <Accordion title="URL · 세션 · proxy">
+    - [ ] `session`, `proxy`를 search params에서 읽음
+    - [ ] Daven 호출이 모두 `{proxy}/…`로만 감
+    - [ ] `Authorization` + `X-Edu-Session` 전송
+    - [ ] 세션 없을 때 명확한 empty / 안내 UI (크래시 금지)
+  </Accordion>
+  <Accordion title="iframe · CORS">
+    - [ ] sandbox에서 동작 (팝업 없이도 완료 가능)
+    - [ ] 앱 오리진 CORS가 Edu / 로컬 Hub를 허용
+    - [ ] cookie 의존을 iframe 기본 경로로 쓰지 않음
+  </Accordion>
+  <Accordion title="생성 UX">
+    - [ ] quote → create → poll 루프
+    - [ ] 대기 중 skeleton / progress (bare "Loading…" 지양)
+    - [ ] 실패 시 retry + 사람이 읽을 메시지
+  </Accordion>
+</AccordionGroup>
+
+## Hub 등록
+
+- [ ] 활동에 **호스팅 URL** 등록
+- [ ] 로컬: `http://localhost:…` 허용 여부 확인
+- [ ] 프로덕션: HTTPS + 안정 도메인
+
+## 보안
+
+<Warning>
+  - [ ] 프론트에 MCP / Daven 시크릿 없음  
+  - [ ] 로그·에러 UI에 토큰 전체 노출 없음  
+  - [ ] 외부로 session 전달 금지
+</Warning>
+
+## 교실 UX
+
+- [ ] EN / KO (또는 대상 로케일) 라벨
+- [ ] AI가 학생 글을 **명시 액션 없이** 덮어쓰지 않음
+- [ ] 미리보기 / 다운로드 / 다시 생성 동선
+- [ ] 모바일·노트북 뷰포트에서 iframe 사용 가능
+
+## 스모크
+
+| # | 기대 |
+| --- | --- |
+| Account | 세션 있음 → 200 + `success` |
+| Auth | 세션 없음 → 401 |
+| Network | proxy 호스트만 |

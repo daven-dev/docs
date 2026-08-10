@@ -1,0 +1,96 @@
+---
+title: "에이전트 스펙"
+description: "코딩 에이전트용 결정적 계약 — 추측 없이 구현"
+---
+
+이 페이지는 **사람이 읽는 가이드가 아니라 구현 스펙**입니다. 모호하면 구현하지 말고 이 표를 따르세요.
+
+<Info>
+  원문 덤프: [`llms.txt`](/edu/llms.txt) · 스키마: [`openapi.yaml`](/edu/openapi.yaml)
+</Info>
+
+## MUST
+
+1. HTTPS(또는 local) 웹앱을 Edu iframe에서 연다.
+2. `URLSearchParams`로 `session`, `proxy`를 읽는다.
+3. Daven 호출은 `{proxy}` base만 사용한다.
+4. 매 요청에 `Authorization: Bearer {session}` **그리고** `X-Edu-Session: {session}`을 넣는다.
+5. 응답 envelope를 파싱한다: `status === "success" | "error"`.
+6. 프론트에 API 키 / MCP 시크릿을 넣지 않는다.
+
+## MUST NOT
+
+1. 브라우저에서 `daven.ai` / `app.daven.ai`를 직접 호출하지 않는다.
+2. 팝업·top navigation을 Edu 기본 플로우에 필수로 두지 않는다.
+3. 학생 원문을 AI 결과로 자동 덮어쓰지 않는다.
+
+## Defaults
+
+| Key | Value |
+| --- | --- |
+| `proxy` (prod) | `https://edu.daven.ai/api/v1/mcp-proxy` |
+| `proxy` (local Hub) | `http://localhost:3001/api/v1/mcp-proxy` |
+| Content-Type | `application/json` |
+
+## Endpoints (complete)
+
+구현 시 이 표만 있으면 됩니다. body 필드 상세는 모델별로 다르며 OpenAPI의 `additionalProperties`를 따릅니다.
+
+| Op | Method | Path |
+| --- | --- | --- |
+| health | GET | `/health` |
+| account | GET | `/api/account` |
+| quote | POST | `/api/quote` |
+| uploadUrl | POST | `/api/upload-url` |
+| mediaCreate | POST | `/api/media/create` |
+| mediaGet | POST | `/api/media/get` |
+| catalog | GET | `/api/catalog` |
+
+## Canonical client (copy)
+
+```ts
+const params = new URLSearchParams(location.search);
+const session = params.get("session");
+const proxy = (
+  params.get("proxy") || "https://edu.daven.ai/api/v1/mcp-proxy"
+).replace(/\/$/, "");
+
+export async function davenFetch(path: string, init?: RequestInit) {
+  const res = await fetch(
+    `${proxy}${path.startsWith("/") ? path : `/${path}`}`,
+    {
+      ...init,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        ...(session
+          ? {
+              Authorization: `Bearer ${session}`,
+              "X-Edu-Session": session,
+            }
+          : {}),
+        ...(init?.headers ?? {}),
+      },
+    },
+  );
+  const json = await res.json();
+  if (!res.ok || json?.status === "error") {
+    throw new Error(json?.error?.message || res.statusText);
+  }
+  return json;
+}
+```
+
+## Acceptance (binary)
+
+에이전트는 아래가 전부 true일 때만 “연동 완료”라고 보고합니다.
+
+- [ ] `davenFetch("/api/account")` → HTTP 200, `status === "success"`
+- [ ] 세션 헤더 제거 시 → 401
+- [ ] DevTools Network에 Edu proxy host만 존재
+- [ ] iframe sandbox에서 핵심 플로우 완료 가능
+
+## Reference paths
+
+- App: `dv_mcp/apps/sihwa_project`
+- Proxy: `dv-edu/apps/api/src/mcp-proxy/mcp-proxy.controller.ts`

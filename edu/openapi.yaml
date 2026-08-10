@@ -1,0 +1,235 @@
+openapi: 3.1.0
+info:
+  title: DV Edu MCP Proxy API
+  version: 0.1.0
+  description: |
+    Education apps call Daven through this Edu proxy. Never put Daven API keys in the browser.
+    Base URL is the `proxy` query param from the Edu iframe (default production below).
+  contact:
+    name: Daven Edu
+servers:
+  - url: https://edu.daven.ai/api/v1/mcp-proxy
+    description: Production
+  - url: http://localhost:3001/api/v1/mcp-proxy
+    description: Local Hub API
+security:
+  - EduSessionBearer: []
+  - EduSessionHeader: []
+tags:
+  - name: Session
+  - name: Account
+  - name: Media
+  - name: Catalog
+paths:
+  /health:
+    get:
+      tags: [Session]
+      summary: Proxy health
+      security: []
+      operationId: health
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+  /api/account:
+    get:
+      tags: [Account]
+      summary: Runtime account / quota
+      operationId: getAccount
+      parameters:
+        - $ref: "#/components/parameters/SessionQuery"
+      responses:
+        "200":
+          description: Account payload from Daven
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/quote:
+    post:
+      tags: [Media]
+      summary: Pre-generation quote
+      operationId: quote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              description: Model-specific quote body (same family as Daven Playground / MCP tools).
+      responses:
+        "200":
+          description: Quote result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/upload-url:
+    post:
+      tags: [Media]
+      summary: Issue upload URL
+      operationId: uploadUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Upload URL payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/media/create:
+    post:
+      tags: [Media]
+      summary: Start media generation job
+      operationId: mediaCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/media/get:
+    post:
+      tags: [Media]
+      summary: Poll media / job status
+      operationId: mediaGet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              properties:
+                id:
+                  type: string
+                  description: Media or job id from create
+      responses:
+        "200":
+          description: Job status / media
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/catalog:
+    get:
+      tags: [Catalog]
+      summary: Catalog lookup
+      operationId: catalog
+      parameters:
+        - $ref: "#/components/parameters/SessionQuery"
+        - name: kind
+          in: query
+          schema:
+            type: string
+            default: voices
+            examples: [voices]
+          description: Catalog kind
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Optional search string
+      responses:
+        "200":
+          description: Catalog list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+components:
+  securitySchemes:
+    EduSessionBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: EduSession
+      description: iframe `session` query value
+    EduSessionHeader:
+      type: apiKey
+      in: header
+      name: X-Edu-Session
+      description: Same token as Bearer / `session` query
+  parameters:
+    SessionQuery:
+      name: session
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Optional; prefer Authorization / X-Edu-Session headers
+  responses:
+    Unauthorized:
+      description: Missing or invalid Edu session
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            status: error
+            error:
+              code: AUTH_001
+              message: Invalid Edu session
+  schemas:
+    SuccessEnvelope:
+      type: object
+      required: [status, data]
+      properties:
+        status:
+          type: string
+          const: success
+        data:
+          description: Endpoint-specific payload
+        code:
+          type: string
+          default: ""
+        message:
+          type: string
+          default: ""
+    ErrorEnvelope:
+      type: object
+      required: [status, error]
+      properties:
+        status:
+          type: string
+          const: error
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              examples: [AUTH_001, VAL_001, CFG_002]
+            message:
+              type: string
+            detail:
+              description: Optional debug detail

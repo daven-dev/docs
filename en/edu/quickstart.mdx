@@ -1,0 +1,111 @@
+---
+title: "Quickstart"
+description: "Wire Edu session + proxy and call Daven in five minutes"
+---
+
+Goal: even outside the iframe, **session + proxy** → successful account call means smoke pass.
+
+<Tip>
+  Coding agents: load [Agent spec](/en/edu/agent-spec) and [`llms.txt`](/en/edu/llms.txt) first, then run these Steps.
+</Tip>
+
+<Steps>
+  <Step title="Host the app">
+    Deploy on HTTPS (e.g. Vercel). Localhost works for development.
+
+    Hub iframe sandbox is `allow-scripts allow-forms allow-same-origin`. Do not depend on popups or top-level redirects.
+  </Step>
+
+  <Step title="Parse query params">
+    ```ts
+    const params = new URLSearchParams(window.location.search);
+    const session = params.get("session"); // required inside Edu
+    const proxy =
+      params.get("proxy") || "https://edu.daven.ai/api/v1/mcp-proxy";
+    ```
+
+    <AccordionGroup>
+      <Accordion title="Production proxy">
+        `https://edu.daven.ai/api/v1/mcp-proxy`
+      </Accordion>
+      <Accordion title="Local Hub API">
+        `http://localhost:3001/api/v1/mcp-proxy`
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+
+  <Step title="Session-aware client">
+    <CodeGroup>
+
+    ```ts daven.ts
+    export async function davenFetch(
+      proxy: string,
+      session: string | null,
+      path: string,
+      init?: RequestInit,
+    ) {
+      const base = proxy.replace(/\/$/, "");
+      const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
+      const res = await fetch(url, {
+        ...init,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          ...(session
+            ? {
+                Authorization: `Bearer ${session}`,
+                "X-Edu-Session": session,
+              }
+            : {}),
+          ...(init?.headers ?? {}),
+        },
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error?.message || res.statusText);
+      }
+      return json;
+    }
+    ```
+
+    ```bash curl
+    curl -sS "$PROXY/api/account" \
+      -H "Authorization: Bearer $SESSION" \
+      -H "X-Edu-Session: $SESSION"
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Smoke test">
+    ```ts
+    const account = await davenFetch(proxy, session, "/api/account");
+    // expect: account.status === "success"
+    ```
+
+    Without the Hub UI, run Hub API and open the app with a dev session token.
+
+    ```bash
+    cd dv-edu/apps/api && npm run start:dev
+    ```
+  </Step>
+
+  <Step title="Generation loop">
+    1. `POST /api/quote`
+    2. `POST /api/media/create`
+    3. Poll `POST /api/media/get`
+    4. Preview / download
+
+    Details: [Proxy API](/en/edu/proxy-api) · [OpenAPI](/edu/openapi.yaml)
+  </Step>
+</Steps>
+
+## Done when
+
+| # | Pass criteria |
+| --- | --- |
+| 1 | `GET {proxy}/api/account` → HTTP 200, `status === "success"` |
+| 2 | Same call without session → **401** |
+| 3 | Network shows **Edu proxy host** only (no direct `daven.ai`) |
+
+Next: [Session & proxy](/en/edu/session-proxy) · [Checklist](/en/edu/checklist)

@@ -14,8 +14,20 @@
 
 ## Terminology
 
-<!-- Add product-specific terms and preferred usage -->
-<!-- Example: Use "workspace" not "project", "member" not "user" -->
+- **Classroom Hub / DV Edu** — school classroom platform at `edu.daven.ai` (`dv-edu` repo)
+- **Education app / Edu app** — hosted lesson tool embedded in Edu via iframe (not the Hub itself)
+- **MCP proxy** — Edu Nest path `/api/v1/mcp-proxy` that education apps call with a session (no browser API keys)
+- Prefer "education app" / "교육앱" over vague "MCP app" in end-user docs; "MCP app" is fine in technical contract pages
+
+Developer docs for Edu apps live under `edu/` (KO) and `en/edu/` (EN), tab **교육앱 개발** / **Edu Apps**.
+
+Machine-readable Edu contract (prefer for coding agents):
+
+- `edu/llms.txt` / `en/edu/llms.txt`
+- `edu/openapi.yaml`
+- `edu/agent-spec.mdx` / `en/edu/agent-spec.mdx`
+
+Prefer Mintlify components (`Card`, `Columns`, `Steps`, `Tabs`, `CodeGroup`, `Accordion`, callouts) on Edu pages — keep them scannable, not long prose.
 
 ## Style preferences
 

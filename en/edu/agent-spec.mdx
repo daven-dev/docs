@@ -1,0 +1,96 @@
+---
+title: "Agent spec"
+description: "Deterministic contract for coding agents — implement without guessing"
+---
+
+This page is an **implementation spec**, not a narrative guide. If something is ambiguous, follow these tables — do not invent.
+
+<Info>
+  Dump: [`llms.txt`](/en/edu/llms.txt) · Schema: [`openapi.yaml`](/edu/openapi.yaml)
+</Info>
+
+## MUST
+
+1. Host an HTTPS (or local) web app opened in the Edu iframe.
+2. Read `session` and `proxy` via `URLSearchParams`.
+3. Call Daven only against the `{proxy}` base.
+4. Send `Authorization: Bearer {session}` **and** `X-Edu-Session: {session}` on every request.
+5. Parse the envelope: `status === "success" | "error"`.
+6. Never put API keys / MCP secrets in the frontend.
+
+## MUST NOT
+
+1. Call `daven.ai` / `app.daven.ai` directly from the browser.
+2. Require popups or top-level navigation for the default Edu flow.
+3. Auto-overwrite student-authored text with AI output.
+
+## Defaults
+
+| Key | Value |
+| --- | --- |
+| `proxy` (prod) | `https://edu.daven.ai/api/v1/mcp-proxy` |
+| `proxy` (local Hub) | `http://localhost:3001/api/v1/mcp-proxy` |
+| Content-Type | `application/json` |
+
+## Endpoints (complete)
+
+| Op | Method | Path |
+| --- | --- | --- |
+| health | GET | `/health` |
+| account | GET | `/api/account` |
+| quote | POST | `/api/quote` |
+| uploadUrl | POST | `/api/upload-url` |
+| mediaCreate | POST | `/api/media/create` |
+| mediaGet | POST | `/api/media/get` |
+| catalog | GET | `/api/catalog` |
+
+Body fields are model-specific (`additionalProperties` in OpenAPI).
+
+## Canonical client (copy)
+
+```ts
+const params = new URLSearchParams(location.search);
+const session = params.get("session");
+const proxy = (
+  params.get("proxy") || "https://edu.daven.ai/api/v1/mcp-proxy"
+).replace(/\/$/, "");
+
+export async function davenFetch(path: string, init?: RequestInit) {
+  const res = await fetch(
+    `${proxy}${path.startsWith("/") ? path : `/${path}`}`,
+    {
+      ...init,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        ...(session
+          ? {
+              Authorization: `Bearer ${session}`,
+              "X-Edu-Session": session,
+            }
+          : {}),
+        ...(init?.headers ?? {}),
+      },
+    },
+  );
+  const json = await res.json();
+  if (!res.ok || json?.status === "error") {
+    throw new Error(json?.error?.message || res.statusText);
+  }
+  return json;
+}
+```
+
+## Acceptance (binary)
+
+Report “integration complete” only when all are true:
+
+- [ ] `davenFetch("/api/account")` → HTTP 200, `status === "success"`
+- [ ] Without session headers → 401
+- [ ] DevTools Network shows Edu proxy host only
+- [ ] Core flow works under iframe sandbox
+
+## Reference paths
+
+- App: `dv_mcp/apps/sihwa_project`
+- Proxy: `dv-edu/apps/api/src/mcp-proxy/mcp-proxy.controller.ts`
