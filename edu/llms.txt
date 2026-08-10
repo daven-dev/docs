@@ -1,6 +1,6 @@
 # DV Edu — Education Apps (for LLMs / coding agents)
 
-> Prefer live tool: @daven/mcp → daven_guidelines(topic=edu_app|submission)
+> Prefer live tool: @davenai/mcp → daven_guidelines(topic=edu_app|submission)
 > Human docs: /edu/quickstart · /edu/submissions
 > Canonical dumps: /edu/openapi.yaml · /edu/lms-openapi.yaml · /edu/activity-submission.schema.json
 

@@ -23,7 +23,7 @@ Developer docs for Edu apps live under `edu/` (KO) and `en/edu/` (EN), tab **교
 
 Machine-readable Edu contract (prefer for coding agents):
 
-- Live: `@daven/mcp` tool `daven_guidelines` (`topic=edu_app` | `submission`)
+- Live: `@davenai/mcp` tool `daven_guidelines` (`topic=edu_app` | `submission`)
 - `edu/llms.txt` / `en/edu/llms.txt`
 - `edu/openapi.yaml` (mcp-proxy) · `edu/lms-openapi.yaml` (submissions)
 - `edu/activity-submission.schema.json`

@@ -20,7 +20,7 @@ flowchart LR
 | Daven 계정 | [daven.ai](https://daven.ai) 로그인 |
 | 토큰 잔액 | 개발·Playground 테스트는 **본인 계정 토큰**을 사용합니다 |
 | 호스팅 | 예: [Vercel](https://vercel.com) (HTTPS URL) |
-| MCP 클라이언트 (선택) | 본인이 쓰는 AI 코딩 도구에 `@daven/mcp` 연결 |
+| MCP 클라이언트 (선택) | 본인이 쓰는 AI 코딩 도구에 `@davenai/mcp` 연결 |
 
 ## 용어
 
@@ -30,7 +30,7 @@ flowchart LR
 | MCP 키 | `dvn_mcp_live_…` 개발자 시크릿. MCP 클라이언트·서버 측 호출·Playground 검증에 씁니다. 브라우저에 넣지 마세요. |
 | Playground | [daven.ai/playground](https://daven.ai/playground) — 앱을 검증하고 Daven에 제출하는 곳 |
 | Classroom Hub (Edu) | [edu.daven.ai](https://edu.daven.ai) — 승인된 앱을 수업에서 쓰는 곳 |
-| `@daven/mcp` | MCP 서버. 개발할 때 AI 도구가 Daven 기능을 호출합니다. |
+| `@davenai/mcp` | MCP 서버. 개발할 때 AI 도구가 Daven 기능을 호출합니다. |
 
 <Warning>
   MCP를 Vercel에 설치하지 않습니다. Vercel에는 교육앱을 배포하고, 서버 환경 변수에만 MCP 키를 둡니다. MCP 서버는 본인이 쓰는 AI 코딩 플랫폼에 연결합니다.
@@ -54,14 +54,14 @@ flowchart LR
   </Step>
 
   <Step title="MCP 클라이언트에 연결 (선택)">
-    본인이 쓰는 AI 코딩 플랫폼의 MCP 설정에 `@daven/mcp`를 추가합니다. Settings → Developer / MCP에 있는 설정 예시를 참고하세요.
+    본인이 쓰는 AI 코딩 플랫폼의 MCP 설정에 `@davenai/mcp`를 추가합니다. Settings → Developer / MCP에 있는 설정 예시를 참고하세요.
 
     ```json
     {
       "mcpServers": {
         "daven": {
           "command": "npx",
-          "args": ["-y", "@daven/mcp"],
+          "args": ["-y", "@davenai/mcp"],
           "env": {
             "DAVEN_API_KEY": "<your-mcp-key>",
             "DAVEN_WEBAPP_URL": "https://daven.ai",
