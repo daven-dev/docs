@@ -1,0 +1,175 @@
+openapi: 3.1.0
+info:
+  title: DV Edu LMS — Activity submissions
+  version: 0.1.0
+  description: |
+    Student work from education apps → Classroom Hub.
+    Auth is the Edu session (same token as mcp-proxy). activityId/studentId are bound from the session.
+servers:
+  - url: https://edu.daven.ai/api/v1
+    description: Production Hub API
+  - url: http://localhost:3001/api/v1
+    description: Local Hub API
+security:
+  - EduSessionBearer: []
+  - EduSessionHeader: []
+paths:
+  /activities/{activityId}/submissions:
+    post:
+      tags: [Submissions]
+      summary: Submit student work (URL envelope)
+      operationId: createActivitySubmission
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivitySubmissionEnvelope"
+            example:
+              title: 벚꽃 시화
+              summary: 학생 시 + 이미지·낭독·음악
+              primaryUrl: https://cdn.example/cover.png
+              assets:
+                - role: cover
+                  url: https://cdn.example/cover.png
+                  mimeType: image/png
+                - role: audio
+                  url: https://cdn.example/tts.mp3
+                  mimeType: audio/mpeg
+                  label: 낭독
+              meta:
+                poemTitle: 벚꽃
+      responses:
+        "200":
+          description: Stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionSuccess"
+        "401":
+          description: Invalid session
+        "422":
+          description: Validation failed
+    get:
+      tags: [Submissions]
+      summary: List submissions for an activity (teacher)
+      operationId: listActivitySubmissions
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    const: success
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ActivitySubmissionRecord"
+components:
+  securitySchemes:
+    EduSessionBearer:
+      type: http
+      scheme: bearer
+    EduSessionHeader:
+      type: apiKey
+      in: header
+      name: X-Edu-Session
+  schemas:
+    ActivitySubmissionEnvelope:
+      type: object
+      required: [title, primaryUrl, assets]
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        summary:
+          type: string
+          maxLength: 2000
+        primaryUrl:
+          type: string
+          format: uri
+        assets:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/SubmissionAsset"
+        attachments:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubmissionAttachment"
+        meta:
+          type: object
+          additionalProperties: true
+    SubmissionAsset:
+      type: object
+      required: [role, url]
+      properties:
+        role:
+          type: string
+          enum: [cover, image, audio, video, page, file, other]
+        url:
+          type: string
+          format: uri
+        mimeType:
+          type: string
+        label:
+          type: string
+    SubmissionAttachment:
+      type: object
+      required: [url, filename]
+      properties:
+        url:
+          type: string
+          format: uri
+        filename:
+          type: string
+        bytes:
+          type: integer
+        mimeType:
+          type: string
+    ActivitySubmissionRecord:
+      allOf:
+        - $ref: "#/components/schemas/ActivitySubmissionEnvelope"
+        - type: object
+          required: [id, studentId, activityId, classroomId, submittedAt]
+          properties:
+            id:
+              type: string
+            studentId:
+              type: string
+            activityId:
+              type: string
+            classroomId:
+              type: string
+            submittedAt:
+              type: string
+              format: date-time
+            artifactId:
+              type: string
+    SubmissionSuccess:
+      type: object
+      required: [status, data]
+      properties:
+        status:
+          const: success
+        data:
+          $ref: "#/components/schemas/ActivitySubmissionRecord"
+        code:
+          type: string
+        message:
+          type: string

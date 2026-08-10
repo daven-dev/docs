@@ -1,8 +1,8 @@
 # DV Edu — Education Apps (for LLMs / coding agents)
 
-> Prefer live tool: @daven/mcp → daven_guidelines(topic=edu_app)
-> Human docs (no session deep-dive): /en/edu/quickstart
-> Canonical dumps: /edu/openapi.yaml · /en/edu/agent-spec
+> Prefer live tool: @daven/mcp → daven_guidelines(topic=edu_app|submission)
+> Human docs: /en/edu/quickstart · /en/edu/submissions
+> Canonical dumps: /edu/openapi.yaml · /edu/lms-openapi.yaml · /edu/activity-submission.schema.json
 
 ## Product
 - Classroom Hub = edu.daven.ai (dv-edu). Hosts classes, activities, credits.
@@ -79,5 +79,14 @@ async function davenFetch(path: string, init?: RequestInit) {
 - Key files: src/lib/daven-config.ts, src/lib/daven.ts
 - Example host: https://sihwa-project-teal.vercel.app
 
+## Student submission → LMS (URL envelope)
+POST {EDU_API}/api/v1/activities/{activityId}/submissions
+Body required: title, primaryUrl, assets[1+]
+No blob/localhost URLs. Files only as optional attachments.
+Schema: /edu/activity-submission.schema.json
+OpenAPI LMS: /edu/lms-openapi.yaml
+Agent: daven_guidelines topic=submission
+
 ## OpenAPI
-- /edu/openapi.yaml
+- /edu/openapi.yaml (mcp-proxy)
+- /edu/lms-openapi.yaml (submissions)

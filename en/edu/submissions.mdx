@@ -1,0 +1,92 @@
+---
+title: "Student submissions"
+description: "Education app → LMS submission envelope (URL-first)"
+---
+
+Format education apps use when a student **submits work** to Classroom Hub (LMS).  
+This is **not** the developer Playground → Master app-review submit.
+
+JSON Schema: [`/edu/activity-submission.schema.json`](/edu/activity-submission.schema.json)  
+OpenAPI: [`/edu/lms-openapi.yaml`](/edu/lms-openapi.yaml)
+
+## Principles
+
+- Body is a **URL envelope** (`primaryUrl` + `assets[]`)
+- Files (zip/PDF) are optional via `attachments`
+- No `localhost` / `blob:` — permanent HTTPS URLs only
+- Student and activity IDs come from the **Edu session** (app must not forge them)
+
+## API
+
+```http
+POST /api/v1/activities/{activityId}/submissions
+Authorization: Bearer {session}
+X-Edu-Session: {session}
+Content-Type: application/json
+```
+
+Base: `https://edu.daven.ai/api/v1` (local Hub: `http://localhost:3001/api/v1`)
+
+Teacher list:
+
+```http
+GET /api/v1/activities/{activityId}/submissions
+```
+
+## Body
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `title` | yes | One-line teacher list title |
+| `summary` | no | Preview text |
+| `primaryUrl` | yes | URL the teacher opens first |
+| `assets` | yes (1+) | `role` + `url` (+ mime/label) |
+| `attachments` | no | Archive/print files |
+| `meta` | no | App-specific extensions |
+
+`assets[].role`: `cover` · `image` · `audio` · `video` · `page` · `file` · `other`
+
+## Example
+
+```json
+{
+  "title": "Cherry blossom poem card",
+  "summary": "Student poem + image, narration, music",
+  "primaryUrl": "https://cdn.example/cover.png",
+  "assets": [
+    {
+      "role": "cover",
+      "url": "https://cdn.example/cover.png",
+      "mimeType": "image/png"
+    },
+    {
+      "role": "audio",
+      "url": "https://cdn.example/tts.mp3",
+      "mimeType": "audio/mpeg",
+      "label": "Narration"
+    }
+  ],
+  "meta": { "poemTitle": "Cherry blossoms" }
+}
+```
+
+## LMS / Artifact mapping
+
+| Submission | Artifact |
+| --- | --- |
+| — | `type: "submission"` |
+| `title` | `title` |
+| `summary` | `summary` |
+| `primaryUrl` | `primaryUrl` |
+| `assets` | `assets` |
+| `attachments` | `attachments` |
+| `meta` | `meta` |
+| record `id` | `submissionId` |
+
+## For agents
+
+```text
+daven_guidelines  topic=submission
+```
+
+Explicit submit button → POST envelope → show “submitted” only after `status===success`.

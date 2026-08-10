@@ -1,0 +1,101 @@
+---
+title: "학생 제출"
+description: "교육앱 → LMS 제출 envelope (URL 중심)"
+---
+
+교육앱에서 학생이 **최종 제출**할 때 Classroom Hub(LMS)로 보내는 형식입니다.  
+개발자 Playground → Master 앱 검수 제출과는 **별개**입니다.
+
+JSON Schema: [`activity-submission.schema.json`](/edu/activity-submission.schema.json)  
+OpenAPI: [`lms-openapi.yaml`](/edu/lms-openapi.yaml)
+
+## 원칙
+
+- 본문은 **URL envelope** (`primaryUrl` + `assets[]`)
+- 파일(zip/PDF)은 필요할 때만 `attachments`로 선택
+- `localhost` / `blob:` URL 금지 — 업로드 후 영구 HTTPS URL만
+- 학생·활동 ID는 **Edu 세션**에서 확정 (앱이 위조하지 않음)
+
+## API
+
+```http
+POST /api/v1/activities/{activityId}/submissions
+Authorization: Bearer {session}
+X-Edu-Session: {session}
+Content-Type: application/json
+```
+
+Base: `https://edu.daven.ai/api/v1` (로컬 Hub: `http://localhost:3001/api/v1`)
+
+교사용 목록:
+
+```http
+GET /api/v1/activities/{activityId}/submissions
+```
+
+## Body
+
+| 필드 | 필수 | 설명 |
+| --- | --- | --- |
+| `title` | 예 | 교사 목록 한 줄 |
+| `summary` | 아니오 | 미리보기 텍스트 |
+| `primaryUrl` | 예 | 교사가 먼저 여는 URL |
+| `assets` | 예 (1+) | `role` + `url` (+ mime/label) |
+| `attachments` | 아니오 | 아카이브/인쇄용 파일 |
+| `meta` | 아니오 | 앱별 확장 필드 |
+
+`assets[].role`: `cover` · `image` · `audio` · `video` · `page` · `file` · `other`
+
+## 예시
+
+```json
+{
+  "title": "벚꽃 시화",
+  "summary": "학생이 쓴 시 + 이미지·낭독·음악",
+  "primaryUrl": "https://cdn.example/cover.png",
+  "assets": [
+    {
+      "role": "cover",
+      "url": "https://cdn.example/cover.png",
+      "mimeType": "image/png"
+    },
+    {
+      "role": "page",
+      "url": "https://cdn.example/poem.html",
+      "mimeType": "text/html"
+    },
+    {
+      "role": "audio",
+      "url": "https://cdn.example/tts.mp3",
+      "mimeType": "audio/mpeg",
+      "label": "낭독"
+    }
+  ],
+  "meta": { "poemTitle": "벚꽃" }
+}
+```
+
+## LMS / Artifact 매핑
+
+Hub는 제출을 저장한 뒤 갤러리 `Artifact`로 미러할 수 있습니다.
+
+| Submission | Artifact |
+| --- | --- |
+| — | `type: "submission"` |
+| `title` | `title` |
+| `summary` | `summary` |
+| `primaryUrl` | `primaryUrl` |
+| `assets` | `assets` |
+| `attachments` | `attachments` |
+| `meta` | `meta` |
+| record `id` | `submissionId` |
+
+## 앱 개발 (에이전트)
+
+`@daven/mcp` 도구:
+
+```text
+daven_guidelines  topic=submission
+```
+
+명시적 제출 버튼 → envelope POST → 성공 후에만 “제출 완료” UI.
