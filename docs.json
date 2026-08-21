@@ -102,7 +102,10 @@
                 "group": "MCP",
                 "pages": [
                   "edu/proxy-api",
-                  "edu/submissions"
+                  "edu/session-proxy",
+                  "edu/catalog",
+                  "edu/submissions",
+                  "edu/hub-status"
                 ]
               },
               {
@@ -205,7 +208,10 @@
                 "group": "MCP",
                 "pages": [
                   "en/edu/proxy-api",
-                  "en/edu/submissions"
+                  "en/edu/session-proxy",
+                  "en/edu/catalog",
+                  "en/edu/submissions",
+                  "en/edu/hub-status"
                 ]
               },
               {

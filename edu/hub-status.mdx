@@ -1,0 +1,36 @@
+---
+title: "Hub MCP 상태"
+description: "Classroom Hub ↔ MCP 파이프라인 — 적용됨 / 남은 작업"
+---
+
+교육앱 런타임과 Master 카탈로그 기준입니다. 구현 세부는 `dv-edu/docs/mcp-app/README.md`.
+
+## 적용됨
+
+| 항목 | 메모 |
+| --- | --- |
+| MCP 키 · `@davenai/mcp` | 개발자 stdio 도구 |
+| Playground Submit · Master 검수 UI | `daven.ai` |
+| 승인 카탈로그 | `GET /api/mcp-apps/approved` → Edu `GET /api/v1/mcp-apps/approved` |
+| 교실 실행 | 새 탭 `{hostedUrl}?session=&proxy=` |
+| Nest MCP proxy | 생성·견적·업로드 (교실 키는 서버) |
+| 학생 제출 API | `POST .../activities/:id/submissions` |
+| 학교 크레딧 지급 | Platform Admin → Supabase Postgres `schools` + `school_credit_grants` + `credit_events` |
+| 교실 실과금 | MCP `media/create` 성공 시 학교 풀 차감. 내역은 Admin/학교/교사/학생 **사용량** |
+| Playground proxy | `daven.ai/api/playground/proxy` — 개발자 토큰 과금. iframe은 `session`+`proxy` |
+| Hub LMS roster | 교실·교사·학생·활동은 Supabase Postgres (`GET /api/v1/lms/*`). 웹은 API 우선, 실패 시 mock |
+| Hub 로그인 | Supabase Auth + 같은 프로젝트의 `user_profiles` |
+
+## 교실 실행 (확정)
+
+Hub는 교육앱을 iframe으로 끼워 넣지 않습니다. **시작** 클릭 시 hosted URL을 새 탭으로 엽니다. 앱은 최상위 페이지로 `session` / `proxy`를 읽어야 합니다. `/embed/apps/{slug}`는 선택 호스트입니다.
+
+## 아직 아님
+
+| 항목 | 메모 |
+| --- | --- |
+| Hub LMS mock 제거 | games / quests / shop / artifacts는 아직 `src/mocks/` |
+| 제출 → Artifact 갤러리 | DB 저장만 |
+| MCP spec `2026-07-28` / SDK v2 | `@davenai/mcp`는 SDK v1 stdio |
+
+다음 우선순위: **제출 → Artifact 갤러리** (LMS roster는 적용됨).

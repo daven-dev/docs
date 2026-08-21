@@ -1,0 +1,52 @@
+---
+title: "승인 앱 카탈로그"
+description: "Master 승인 앱이 Classroom Hub에 보이는 방식"
+---
+
+Master에서 승인한 교육앱만 교실에 나타납니다.
+
+## 흐름
+
+```mermaid
+flowchart LR
+  P[Playground Submit] --> M[Master 승인]
+  M --> C["GET /api/mcp-apps/approved"]
+  C --> H[Edu 교사 앱 선택]
+  H --> L[새 탭 hostedUrl]
+```
+
+1. 개발자가 Playground에서 Submit합니다.
+2. Master가 `appSlug` + `hostedUrl`로 Approve합니다.
+3. Edu가 승인 목록을 읽어 교사가 고릅니다.
+4. 학생 **시작**은 `{hostedUrl}?session=&proxy=`를 **새 탭**으로 엽니다.
+
+## API
+
+공개 카탈로그 (PII 없음):
+
+```http
+GET https://daven.ai/api/mcp-apps/approved
+```
+
+Hub Nest 프록시 (교실이 이 경로를 씀):
+
+```http
+GET https://api.edu.daven.ai/api/v1/mcp-apps/approved
+```
+
+응답 `data[]`:
+
+| 필드 | 설명 |
+| --- | --- |
+| `appSlug` | 교실에서 쓰는 슬러그 |
+| `appName` | 표시 이름 |
+| `hostedUrl` | HTTPS 앱 URL |
+| `embedPath` | 레거시 embed 경로 (선택) |
+| `expectedCreditsPerSession` | 세션당 예상 크레딧 |
+| `repoUrl` / `demoUrl` | 참고 링크 |
+
+로컬에서 daven.ai / Nest가 비어 있거나 실패하면 Hub는 mock 시화 앱으로 폴백합니다.
+
+## 런타임
+
+세션·proxy 규약은 [세션과 proxy](/edu/session-proxy)를 따릅니다.

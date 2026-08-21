@@ -1,0 +1,36 @@
+---
+title: "Hub MCP status"
+description: "Classroom Hub ↔ MCP pipeline — shipped vs remaining"
+---
+
+Classroom runtime and Master catalog. Implementation notes: `dv-edu/docs/mcp-app/README.md`.
+
+## Shipped
+
+| Item | Notes |
+| --- | --- |
+| MCP keys · `@davenai/mcp` | Developer stdio tools |
+| Playground Submit · Master review UI | `daven.ai` |
+| Approved catalog | `GET /api/mcp-apps/approved` → Edu `GET /api/v1/mcp-apps/approved` |
+| Classroom launch | New tab `{hostedUrl}?session=&proxy=` |
+| Nest MCP proxy | Quote / upload / generate (server-held key) |
+| Student submissions API | `POST .../activities/:id/submissions` |
+| School credit grants | Platform Admin → Supabase Postgres `schools` + `school_credit_grants` + `credit_events` |
+| Classroom spend | Successful MCP `media/create` deducts the school pool. Ledger on Admin / school / teacher / student **Usage** |
+| Playground proxy | `daven.ai/api/playground/proxy` — developer tokens. Preview iframe gets `session` + `proxy` |
+| Hub LMS roster | Classrooms, teachers, students, activities in Supabase Postgres (`GET /api/v1/lms/*`). Web prefers API, falls back to mock |
+| Hub login | Supabase Auth + `user_profiles` in the same project |
+
+## Classroom launch (decided)
+
+The Hub does **not** iframe the education app in the dashboard. **Start** opens the hosted URL in a new tab. The app must read `session` / `proxy` as a top-level page. `/embed/apps/{slug}` is an optional host.
+
+## Not yet
+
+| Item | Notes |
+| --- | --- |
+| Replace Hub LMS mocks | games / quests / shop / artifacts still `src/mocks/` |
+| Submission → Artifact gallery | DB row only |
+| MCP spec `2026-07-28` / SDK v2 | `@davenai/mcp` is SDK v1 stdio |
+
+Next: **submission → Artifact gallery** (LMS roster is live).
