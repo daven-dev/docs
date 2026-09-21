@@ -93,6 +93,7 @@ Do not wrap, deploy, and catalog-approve in one shot. Student Start must return 
 - Classroom text: `gpt-5.6-luna`, ≥1600 output tokens, no reasoning_effort by default. `gpt-5-mini` + reasoning + small max tokens returns 200 with empty `data.text` → EMPTY_RESULT.
 - Daven PNGs often exceed 5MB. Do not fail the request after a successful create. Allow ~25MB or compress.
 - Production Vercel: no `DAVEN_API_KEY` / `OPENAI_API_KEY`. Framework Next.js (Other → 404). Host `{slug}.edu-app.daven.ai`. Favicon Hub `/brand/classroom-logo.png`. Local developer key ≠ student generate.
+- Never POST composed page data URLs through a Vercel BFF (4.5MB → 413 Too Large). Per page: Hub `upload-url` → browser PUT (or one JPEG BFF fallback) → submit only HTTPS `primaryUrl` + `assets[]`. Teacher Submissions tab opens those URLs.
 Human: /edu/hosted-app#image-studio에서-깨진-것
 
 ## Recommended TypeScript SDK
