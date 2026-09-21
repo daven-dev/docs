@@ -6,7 +6,7 @@ description: "MCP / Edu 연동 엔드포인트와 응답 형식"
 Base URL 예:
 
 ```text
-https://edu.daven.ai/api/v1/mcp-proxy
+https://api.edu.daven.ai/api/v1/mcp-proxy
 ```
 
 OpenAPI: [`/edu/openapi.yaml`](/edu/openapi.yaml)
@@ -16,14 +16,40 @@ OpenAPI: [`/edu/openapi.yaml`](/edu/openapi.yaml)
 | Method | Path | Auth | 설명 |
 | --- | --- | --- | --- |
 | `GET` | `/health` | 없음 | 헬스 체크 |
-| `GET` | `/api/account` | 필요 | 계정 / 쿼터 |
-| `POST` | `/api/quote` | 필요 | 생성 전 견적 |
+| `GET` | `/api/session/context` | 필요 | 검증된 actor·purpose·학생·교실·활동 context |
+| `GET` | `/api/session/roster` | 교사 관리 세션 | 현재 교실의 안전한 학생 표시 정보 |
+| `GET` | `/api/account` | 필요 | 안전한 학교 공용 크레딧 요약 |
+| `POST` | `/api/quote` | 필요 | Edu 고정 크레딧 견적 |
+| `POST` | `/api/text/create` | 필요 | 일반·구조화 텍스트 생성 |
 | `POST` | `/api/upload-url` | 필요 | 업로드 URL 발급 |
 | `POST` | `/api/media/create` | 필요 | 생성 잡 시작 |
 | `POST` | `/api/media/get` | 필요 | 생성 상태 조회 |
 | `GET` | `/api/catalog` | 필요 | 카탈로그 (`kind`, `query`) |
 
-요청 body 필드는 모델·도구마다 다릅니다. Daven Playground / `@davenai/mcp` tool 스키마와 같은 계열을 사용합니다.
+견적 body는 `{ "media_type": "text" | "image" | "video" | "voice" | "music" }`입니다. 응답 `estimated_credits`는 실제 Edu 생성 경로와 같은 고정 크레딧입니다. 생성 요청 body의 나머지 필드는 모델·도구마다 다릅니다.
+
+업로드 URL body는 `{ "file_name": string, "mime_type": string }`입니다. SDK에서는 `daven.uploads.createUrl({ fileName, mimeType })`를 사용하고 반환된 `uploadUrl`에 파일 bytes를 `PUT`한 뒤 `finalUrl`을 생성 요청에 전달합니다.
+
+세션 `purpose`와 actor/학생 의미는 [세션과 proxy](/edu/session-proxy)를 따릅니다.
+
+`/api/account`는 `billing`, `billing_ledger`, `remaining_credits`만 반환합니다. Daven 사용자·runtime key 소유자·payer ID·개인 잔액은 교육앱에 노출하지 않습니다.
+
+## 멱등 요청
+
+`/api/text/create`와 `/api/media/create`에는 `Idempotency-Key`가 필요합니다.
+
+- 사용자 생성 동작마다 새로운 키를 만드세요. `crypto.randomUUID()`를 권장합니다.
+- 네트워크 오류로 같은 요청을 재시도할 때만 같은 키를 다시 사용하세요.
+- 같은 키를 다른 body나 사용자 작업에 사용하면 `409`를 반환합니다.
+- 완료된 요청을 재시도하면 저장된 응답을 반환하며 AI를 다시 실행하지 않습니다.
+
+<Warning>
+  Daven 원장으로 전환한 학교에서는 텍스트와 이미지를 관리형 과금으로 지원합니다. 영상·음성·음악은 각 provider route의 직접 과금 억제가 완성될 때까지 `503 MANAGED_MEDIA_BILLING_UNAVAILABLE`로 차단됩니다.
+</Warning>
+
+이미지는 provider 작업 생성 전에 credits를 예약합니다. `/api/media/get`이 완료를 확인하면 정산하고, provider가 명시적으로 실패를 반환하면 예약을 해제합니다. 앱 작업이 재시작되면 같은 `Idempotency-Key`를 사용해 기존 task를 이어서 조회하세요.
+
+이미지 모델은 서버 allowlist를 따릅니다. 교실 기본값은 `gpt-image-2.5`입니다. `model`을 생략하면 Daven이 `nano-banana-2`를 고르므로 앱과 Hub가 `gpt-image-2.5`를 명시해야 합니다. 앱이 payer 또는 과금 모드를 고를 수 없습니다. Reference image는 public HTTPS URL만 허용합니다.
 
 ## 응답 형식
 
@@ -54,7 +80,13 @@ OpenAPI: [`/edu/openapi.yaml`](/edu/openapi.yaml)
 | HTTP | 의미 |
 | --- | --- |
 | `200` | 성공 (body의 `status`도 확인) |
+| `400` | 요청 또는 `Idempotency-Key` 형식 오류 |
 | `401` | 인증 실패 |
+| `402` | 학교 크레딧 부족 |
+| `404` | 현재 Edu session이 소유하지 않은 media task |
+| `409` | 멱등 키 충돌 또는 같은 작업 처리 중 |
+| `422` | provider가 명시적으로 생성 실패를 확정 |
+| `503` | 과금 원장 또는 복구 일시 중단 |
 
 ## 예시
 
@@ -71,15 +103,23 @@ curl -sS -X POST "$BASE/api/quote" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Edu-Session: $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{}'
+  -d '{"media_type":"image"}'
 ```
 
 ```bash Media create
 curl -sS -X POST "$BASE/api/media/create" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Edu-Session: $TOKEN" \
+  -H "Idempotency-Key: $OPERATION_ID" \
   -H "Content-Type: application/json" \
-  -d '{}'
+  -d '{
+    "media_type":"image",
+    "prompt":"A friendly reading passport stamp",
+    "model":"gpt-image-2.5",
+    "aspect_ratio":"1:1",
+    "quality":"quality",
+    "reference_image_urls":[]
+  }'
 ```
 
 ```bash Media get
@@ -87,7 +127,7 @@ curl -sS -X POST "$BASE/api/media/get" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Edu-Session: $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"id":"MEDIA_OR_JOB_ID"}'
+  -d '{"task_id":"MEDIA_OR_JOB_ID","media_type":"image"}'
 ```
 
 ```bash Catalog

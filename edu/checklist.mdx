@@ -7,24 +7,41 @@ Submit 전에 아래를 확인하세요.
 
 ## 기술
 
+- [ ] TypeScript 교실 앱은 `@davenai/sdk/edu`를 우선 사용함
+- [ ] 비공개 prompt나 서버 로직이 있으면 BFF에서 `@davenai/sdk/server`를 사용하고 검증된 `session`과 `proxy`를 명시적으로 전달함
+- [ ] browser와 BFF SDK 모두 등록한 앱의 `expectedAppSlug`를 설정함
+- [ ] Hub의 `session` + `proxy` 새 탭 launch에서 `session.getContext()` 성공
+- [ ] 견적은 `billing.quote({ mediaType })`만 보내고, Hub가 학교 풀 고정 크레딧(text 1 / image 10)을 돌려줌. Daven MCP `slug`/`code` quote로 넘기지 않음
+- [ ] 견적 422로 생성을 중단하지 않음. 차감은 create 2xx
+- [ ] 이미지 `model`이 `gpt-image-2.5`. 생략하면 Daven이 `nano-banana-2`를 씀
+- [ ] 교실 텍스트는 `gpt-5.6-luna`. `gpt-5-mini` + reasoning + 작은 토큰으로 `EMPTY_RESULT` 내지 않음
+- [ ] 이미지 다운로드 한도가 Daven PNG(자주 5MB 초과)를 버리지 않음
 - [ ] MCP 키는 서버 환경 변수에만 있음 (`VITE_` 등 클라이언트 env 금지)
 - [ ] 브라우저가 Daven API를 키와 함께 직접 호출하지 않음
 - [ ] HTTPS(또는 로컬)에서 앱이 정상 동작
 - [ ] 생성 흐름: 견적 → 생성 → 폴링 → 미리보기/다운로드
 - [ ] 대기·에러 UI가 읽기 쉬움 (크래시 금지)
+- [ ] session 만료/401에서 저장 작업을 유지하고 Hub 재실행 안내를 표시
 
 ## 제출
 
+- [ ] Hub 학생 **Start**로 텍스트 1번, 이미지 1번이 나온 뒤에만 Submit / Master Approve
 - [ ] [Playground](https://daven.ai/playground) 체크리스트 통과
 - [ ] **Submit to Daven** 완료
+- [ ] 학생 최종 제출은 stable `externalArtifactId`로 재시도하며 자동 제출하지 않음
+- [ ] 제출 asset은 localhost/IP/내부 hostname이 아닌 공개 영구 HTTPS URL
 
 ## 보안
 
 - [ ] 프론트에 MCP / Daven 시크릿 없음
+- [ ] launch의 임의 proxy로 session을 전송하지 않음. custom proxy allowlist는 정적 설정만 사용
 - [ ] 로그·에러 UI에 시크릿 전체 노출 없음
 
 ## 수업 UX
 
+- [ ] 기존 제품을 올릴 때 [hosted-app](/edu/hosted-app) 불변 조건 (아이덴티티 유지, Edu AI만, 키 fallback 없음)
+- [ ] 탭 파비콘이 Classroom Hub `/brand/classroom-logo.png` (탭 제목은 앱 이름)
+- [ ] `hostedUrl`이 `https://{slug}.edu-app.daven.ai`
 - [ ] EN / KO (또는 대상 로케일) 라벨
 - [ ] AI가 학생 글을 **명시 액션 없이** 덮어쓰지 않음
 - [ ] 미리보기 / 다운로드 / 다시 생성 동선

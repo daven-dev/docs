@@ -1,36 +1,74 @@
 # DV Edu — Education Apps (for LLMs / coding agents)
 
 > Prefer live tool: @davenai/mcp → daven_guidelines(topic=edu_app|submission)
-> Human docs: /edu/quickstart · /edu/submissions
+> Human docs: /edu/quickstart · /edu/hosted-app · /edu/submissions
 > Canonical dumps: /edu/openapi.yaml · /edu/lms-openapi.yaml · /edu/activity-submission.schema.json
 
 ## Product
 - Classroom Hub = edu.daven.ai (dv-edu). Hosts classes, activities, credits.
-- Education app = your HTTPS web app, loaded in an iframe by the Hub.
+- Education app = your HTTPS web app. Hub **Start** opens it in a **new tab** (not a dashboard iframe).
 - Daven AI = generation backend. Browser must NEVER hold API keys.
 
-## Embed contract (deterministic)
-Edu opens: `{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}`
-- Default PROXY_BASE production: `https://edu.daven.ai/api/v1/mcp-proxy`
+## Embed / launch contract (deterministic)
+Edu opens: `{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}` as a **top-level new tab**.
+- Default PROXY_BASE production: `https://api.edu.daven.ai/api/v1/mcp-proxy`
 - Local Hub: `http://localhost:3001/api/v1/mcp-proxy`
-- App MUST read `session` + `proxy` from URL search params.
+- App MUST read `session` + `proxy` from URL search params (works top-level or iframe).
 - App MUST call Daven only via PROXY_BASE (paths below).
 - App MUST send session on requests:
   - Header `Authorization: Bearer {session}`
   - AND/OR Header `X-Edu-Session: {session}`
-  - Optional query `?session=` on some GETs
+- Proxy API MUST NOT receive `session` in its URL query. The SDK removes launch credentials from the address and uses headers.
+- Approved apps: GET `{EDU_API}/mcp-apps/approved` (proxies daven.ai `/api/mcp-apps/approved`)
+- Human: /edu/session-proxy · /edu/catalog · /edu/hub-status
+
+## Edu session contract v2
+- Newly minted sessions are signed HS256 JWTs with `version=2` and `sub=actorId`.
+- `actorId` / context `actor.id` is the authenticated Hub profile that launched the session.
+- `studentId` is the student work subject, not necessarily the actor.
+- Purpose matrix:
+  - `student_activity`: student actor; self `studentId` required; MAY submit.
+  - `student_preview`: owning teacher actor; previewed `studentId` required; MUST NOT submit.
+  - `teacher_manage`: owning teacher actor; `studentId` optional/null; MUST NOT submit.
+- Only `teacher_manage` may have a null `studentId`.
+- Apps SHOULD read verified normalized context from GET `{proxy}/api/session/context`; do not trust client-decoded JWT claims.
+- Use context student/teacher `actorId` as the stable app identity. Never match users by display name or student code.
+- `teacher_manage` MAY call GET `{proxy}/api/session/roster`; it returns only student id, actorId, nickname, number, and status.
+- Apps with a teacher-specific workspace SHOULD set `supportsTeacherManage=true` during Master approval; only then does Hub show a `teacher_manage` launch.
+- Migration compatibility: the server accepts signed v1 JWTs and normalizes student/teacher roles to `student_activity`/`student_preview`.
+- Unsigned base64 session payloads are rejected.
+
+## Hosted existing app (keep identity)
+Human: /edu/hosted-app · EN /en/edu/hosted-app
+Use this when wrapping a product that already has its own UX (Reading Passport, Image Studio, next apps).
+- App keeps name, voice, screens, domain prompts, drafts/artifacts, export formats.
+- Hub owns login, roster, activity, new-tab Start, submission list.
+- Daven owns models, school wallet, reserve/settle/release. No per-student Daven account.
+- Browser never holds keys, MCP secrets, or payer IDs. Client never chooses student/school/classroom/payer.
+- EDU_INTEGRATION_MODE = legacy | hybrid | edu_only. Do not flip the default mid-term.
+- One AI gateway. Edu runtime = proxy only. Missing/expired session → EDU_RELAUNCH_REQUIRED. No operator-key fallback.
+- One operationId per user action; retries derive from it. Different body = different key.
+- In-app save/download/library ≠ Hub submit. externalArtifactId = app artifact id.
+- Student path: no Gemini. Text 1 credit, image 10 credits (image reserved until media/get).
+- If the app has RLS/users, map edu_actor_id → non-login local principal. If it has no user DB, do not invent one.
+- Do not restyle the app as SEED Hub or Vibe. SEED = Hub only. Vibe wordmark/Braid gradient are not the education-app brand.
 
 ## Forbidden
 - Putting MCP / Daven secrets in frontend env or bundles
 - Calling daven.ai / app.daven.ai directly from the browser in Edu mode
-- Relying on popups / top-level redirects inside iframe
+- Extra OAuth popups as the default classroom flow (Hub already opens a new tab)
 - Overwriting student-authored text with AI without an explicit user action
+- Falling back to OPENAI_API_KEY / Gemini when an Edu session is missing
+- Showing Daven login, profile, or billing to classroom students
 
 ## Proxy paths (relative to PROXY_BASE)
 | Method | Path | Auth | Notes |
 | GET | /health | no | health |
-| GET | /api/account | yes | account/quota |
-| POST | /api/quote | yes | JSON body model-specific |
+| GET | /api/session/context | yes | signed actor/student/classroom/activity context |
+| GET | /api/session/roster | teacher_manage | safe classroom roster |
+| GET | /api/account | yes | safe school-pool balance; no payer/user/key-owner identity |
+| POST | /api/quote | yes | `{ media_type }`; actual Edu fixed-credit quote |
+| POST | /api/text/create | yes | sync plain/structured text |
 | POST | /api/upload-url | yes | upload URL |
 | POST | /api/media/create | yes | start job |
 | POST | /api/media/get | yes | poll job |
@@ -40,49 +78,83 @@ Edu opens: `{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}`
 Success: `{ "status": "success", "data": ..., "code": "", "message": "" }`
 Error: `{ "status": "error", "error": { "code": string, "message": string, "detail"?: any } }`
 401 = invalid/missing session
+`text/create` and `media/create` require `Idempotency-Key`.
+Create one with `crypto.randomUUID()` per user action. Reuse it only when retrying the exact same request.
+Daven 관리형 원장은 text 1 credit와 image 10 credits를 지원합니다. Image credits는 `media/get`이 완료를 확인할 때까지 예약 상태이며, provider의 명시적 실패에는 해제됩니다. 전환 학교의 video·voice·music quote와 생성은 계속 fail closed합니다.
 
 ## Recommended client flow
 1. quote → 2. media/create → 3. poll media/get → 4. preview/download
 If file upload: upload-url → PUT bytes → create
 
-## Minimal TypeScript client
+## Hosted-app pitfalls (Image Studio)
+Do not wrap, deploy, and catalog-approve in one shot. Student Start must return one text and one image first.
+- Hub `POST /api/quote` body is `{ media_type }` only. Do not forward it to `daven.ai/api/mcp/quote` (needs slug/code → VALIDATION_ERROR 422). Return school-pool credits locally (text 1 / image 10). Quote is advisory; debit on create 2xx. Do not abort generate on quote 422.
+- Always send image `model: gpt-image-2.5`. Omitting model selects Daven workflow default `nano-banana-2` (Gemini). Student path must not use Gemini. `gpt-image-2.5` quality is `fast`|`quality`, not `medium`.
+- Classroom text: `gpt-5.6-luna`, ≥1600 output tokens, no reasoning_effort by default. `gpt-5-mini` + reasoning + small max tokens returns 200 with empty `data.text` → EMPTY_RESULT.
+- Daven PNGs often exceed 5MB. Do not fail the request after a successful create. Allow ~25MB or compress.
+- Production Vercel: no `DAVEN_API_KEY` / `OPENAI_API_KEY`. Framework Next.js (Other → 404). Host `{slug}.edu-app.daven.ai`. Favicon Hub `/brand/classroom-logo.png`. Local developer key ≠ student generate.
+Human: /edu/hosted-app#image-studio에서-깨진-것
+
+## Recommended TypeScript SDK
 ```ts
-const params = new URLSearchParams(location.search);
-const session = params.get("session");
-const proxy = (params.get("proxy") || "https://edu.daven.ai/api/v1/mcp-proxy").replace(/\/$/, "");
-async function davenFetch(path: string, init?: RequestInit) {
-  const res = await fetch(`${proxy}${path.startsWith("/") ? path : `/${path}`}`, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...(session
-        ? { Authorization: `Bearer ${session}`, "X-Edu-Session": session }
-        : {}),
-      ...(init?.headers ?? {}),
-    },
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json?.error?.message || res.statusText);
-  return json;
+import { createDavenEduClient } from "@davenai/sdk/edu";
+
+const daven = createDavenEduClient({
+  expectedAppSlug: "your-registered-app-slug",
+}); // launch session + proxy 자동 사용
+const context = await daven.session.getContext();
+const account = await daven.billing.getAccount();
+const quote = await daven.billing.quote({ mediaType: "image" });
+const image = await daven.ai.image.generate({
+  prompt: "A friendly reading passport stamp",
+});
+
+if (!image.url) throw new Error("Image URL missing");
+await daven.submissions.submit({
+  title: "My reading passport",
+  primaryUrl: image.url,
+  assets: [{ role: "cover", url: image.url }],
+  externalArtifactId: "book-42",
+});
+```
+
+SDK는 launch query를 현재 탭 sessionStorage로 옮긴 후 주소에서 제거합니다. Daven/API 키를 받지 않으며, 세션·멱등키·폴링·표준 오류를 처리합니다. `shouldRelaunchEducationApp(error)`가 true이면 저장된 작업을 유지하고 Hub에서 활동을 다시 열도록 안내합니다. Node BFF에서는 `@davenai/sdk/server`를 사용합니다. SDK를 사용할 수 없는 환경에서만 아래 raw fetch 규약을 구현하세요:
+```ts
+const response = await fetch(`${proxy}/api/account`, {
+  headers: {
+    Authorization: `Bearer ${session}`,
+    "X-Edu-Session": session,
+  },
+});
+const json = await response.json();
+if (!response.ok || json.status === "error") {
+  throw new Error(json?.error?.message || response.statusText);
 }
 ```
 
 ## Acceptance tests (pass/fail)
-1. With session+proxy in URL, GET `{proxy}/api/account` returns HTTP 200 and `status==="success"`.
+1. Launch with session+proxy in the app URL; the SDK-cleared app URL has no credentials and SDK account lookup returns HTTP 200 with `status==="success"`.
 2. Without session headers, same call returns 401.
 3. Network tab shows requests to Edu proxy host, not daven.ai origin.
-4. App renders usable UI inside iframe sandbox (scripts, forms, same-origin).
+4. App renders usable UI as a top-level page (new tab). Optional `/embed` iframe still OK.
 
 ## Reference implementation
 - Repo: dv_mcp/apps/sihwa_project
 - Key files: src/lib/daven-config.ts, src/lib/daven.ts
 - Example host: https://sihwa-project-teal.vercel.app
+- Human SDK patterns: /edu/sdk-examples
 
 ## Student submission → LMS (URL envelope)
-POST {EDU_API}/api/v1/activities/{activityId}/submissions
-Body required: title, primaryUrl, assets[1+]
-No blob/localhost URLs. Files only as optional attachments.
+POST {EDU_API}/activities/{activityId}/submissions
+Auth: signed Edu session with `purpose=student_activity` only. Teacher preview/manage sessions MUST NOT submit.
+Body required: title, primaryUrl, assets[1+].
+Body optional: externalArtifactId = 1–128 `[A-Za-z0-9._:-]` characters.
+Identity: `(activityId, studentId, appSlug, externalArtifactId)`.
+Same externalArtifactId = resubmit/update that artifact; different IDs = multiple submission rows.
+Omitted externalArtifactId persists as `__default__` for legacy one-row behavior.
+Only public permanent HTTPS URLs. No blob, localhost, IP-literal, internal-host, or credential-bearing URLs. Files only as optional attachments.
+Teacher list: GET the same path with a normal authenticated Hub teacher bearer.
+Listing requires ownership of the activity classroom. Edu sessions and anonymous requests MUST NOT list.
 Schema: /edu/activity-submission.schema.json
 OpenAPI LMS: /edu/lms-openapi.yaml
 Agent: daven_guidelines topic=submission

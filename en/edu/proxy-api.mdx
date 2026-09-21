@@ -6,7 +6,7 @@ description: "MCP / Edu endpoints and response format"
 Example base URL:
 
 ```text
-https://edu.daven.ai/api/v1/mcp-proxy
+https://api.edu.daven.ai/api/v1/mcp-proxy
 ```
 
 OpenAPI: [`/edu/openapi.yaml`](/edu/openapi.yaml)
@@ -16,14 +16,40 @@ OpenAPI: [`/edu/openapi.yaml`](/edu/openapi.yaml)
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
 | `GET` | `/health` | none | Health check |
-| `GET` | `/api/account` | required | Account / quota |
-| `POST` | `/api/quote` | required | Pre-generation quote |
+| `GET` | `/api/session/context` | required | Verified actor, purpose, student, classroom, and activity context |
+| `GET` | `/api/session/roster` | teacher manage session | Safe student display data for the bound classroom |
+| `GET` | `/api/account` | required | Safe shared-school credit summary |
+| `POST` | `/api/quote` | required | Fixed Edu credit quote |
+| `POST` | `/api/text/create` | required | Plain or structured text generation |
 | `POST` | `/api/upload-url` | required | Issue upload URL |
 | `POST` | `/api/media/create` | required | Start generation job |
 | `POST` | `/api/media/get` | required | Poll generation status |
 | `GET` | `/api/catalog` | required | Catalog (`kind`, `query`) |
 
-Request body fields vary by model/tool. Use the same family as Daven Playground / `@davenai/mcp` tool schemas.
+The quote body is `{ "media_type": "text" | "image" | "video" | "voice" | "music" }`. Its `estimated_credits` matches the fixed credits used by the actual Edu generation route. Other generation body fields vary by model and tool.
+
+The upload URL body is `{ "file_name": string, "mime_type": string }`. With the SDK, call `daven.uploads.createUrl({ fileName, mimeType })`, `PUT` the bytes to `uploadUrl`, then pass `finalUrl` to generation.
+
+See [Session & proxy](/en/edu/session-proxy) for session purposes and actor/student semantics.
+
+`/api/account` returns only `billing`, `billing_ledger`, and `remaining_credits`. It never exposes a Daven user, runtime-key owner, payer ID, or individual balance to an education app.
+
+## Idempotent requests
+
+`/api/text/create` and `/api/media/create` require an `Idempotency-Key`.
+
+- Generate a new key for each user action. We recommend `crypto.randomUUID()`.
+- Reuse the key only when retrying that exact request after a network failure.
+- Reusing a key with another body or user action returns `409`.
+- Retrying a completed request returns its stored response without running AI again.
+
+<Warning>
+  Managed billing supports text and image generation for schools switched to the Daven ledger. Video, voice, and music return `503 MANAGED_MEDIA_BILLING_UNAVAILABLE` until each provider route can suppress its legacy direct charge.
+</Warning>
+
+Image generation reserves credits before creating the provider task. `/api/media/get` settles after it confirms completion and releases the reservation after an explicit provider failure. If your application job restarts, reuse the same `Idempotency-Key` to resume polling the original task.
+
+Image models follow a server allowlist. Classroom default is `gpt-image-2.5`. If you omit `model`, Daven picks `nano-banana-2`, so the app and Hub must send `gpt-image-2.5`. Apps cannot select a payer or billing mode. Reference images must use public HTTPS URLs.
 
 ## Response format
 
@@ -54,7 +80,13 @@ Request body fields vary by model/tool. Use the same family as Daven Playground 
 | HTTP | Meaning |
 | --- | --- |
 | `200` | Success (also check body `status`) |
+| `400` | Invalid request or `Idempotency-Key` format |
 | `401` | Auth failed |
+| `402` | Insufficient school credits |
+| `404` | Media task is not owned by the current Edu session |
+| `409` | Idempotency conflict or operation already in progress |
+| `422` | Provider confirmed a terminal generation failure |
+| `503` | Billing ledger or recovery temporarily unavailable |
 
 ## Examples
 
@@ -71,15 +103,23 @@ curl -sS -X POST "$BASE/api/quote" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Edu-Session: $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{}'
+  -d '{"media_type":"image"}'
 ```
 
 ```bash Media create
 curl -sS -X POST "$BASE/api/media/create" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Edu-Session: $TOKEN" \
+  -H "Idempotency-Key: $OPERATION_ID" \
   -H "Content-Type: application/json" \
-  -d '{}'
+  -d '{
+    "media_type":"image",
+    "prompt":"A friendly reading passport stamp",
+    "model":"gpt-image-2.5",
+    "aspect_ratio":"1:1",
+    "quality":"quality",
+    "reference_image_urls":[]
+  }'
 ```
 
 ```bash Media get
@@ -87,7 +127,7 @@ curl -sS -X POST "$BASE/api/media/get" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Edu-Session: $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"id":"MEDIA_OR_JOB_ID"}'
+  -d '{"task_id":"MEDIA_OR_JOB_ID","media_type":"image"}'
 ```
 
 ```bash Catalog

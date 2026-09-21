@@ -95,7 +95,9 @@
                 "group": "시작하기",
                 "pages": [
                   "edu/overview",
-                  "edu/quickstart"
+                  "edu/quickstart",
+                  "edu/hosted-app",
+                  "edu/agent-spec"
                 ]
               },
               {
@@ -201,7 +203,9 @@
                 "group": "Get started",
                 "pages": [
                   "en/edu/overview",
-                  "en/edu/quickstart"
+                  "en/edu/quickstart",
+                  "en/edu/hosted-app",
+                  "en/edu/agent-spec"
                 ]
               },
               {

@@ -7,24 +7,41 @@ Check these before Submit.
 
 ## Engineering
 
+- [ ] TypeScript classroom app prefers `@davenai/sdk/edu`
+- [ ] When prompts or domain logic must stay private, the BFF uses `@davenai/sdk/server` with an explicit verified `session` and `proxy`
+- [ ] Both browser and BFF SDK clients set the registered app's `expectedAppSlug`
+- [ ] `session.getContext()` succeeds from a Hub `session` + `proxy` new-tab launch
+- [ ] Quote sends only `billing.quote({ mediaType })` and Hub returns school-pool credits (text 1 / image 10). Do not forward to the Daven MCP `slug`/`code` quote
+- [ ] A quote 422 does not abort generate. Debit happens on create 2xx
+- [ ] Image `model` is `gpt-image-2.5`. Omitting it selects Daven `nano-banana-2`
+- [ ] Classroom text uses `gpt-5.6-luna`. Do not ship `gpt-5-mini` + reasoning + a small token cap (`EMPTY_RESULT`)
+- [ ] Image download limit does not drop Daven PNGs that often exceed 5MB
 - [ ] MCP key only in server env (no `VITE_` / client env)
 - [ ] Browser never calls Daven APIs with the key
 - [ ] App works on HTTPS (or localhost for local checks)
 - [ ] Generation flow: quote → create → poll → preview/download
 - [ ] Waiting and error UI are clear (no crashes)
+- [ ] Session expiry/401 preserves saved work and shows the Hub relaunch action
 
 ## Submit
 
+- [ ] One student text and one student image from Hub **Start** before Submit / Master Approve
 - [ ] [Playground](https://daven.ai/playground) checklist passed
 - [ ] **Submit to Daven** completed
+- [ ] Student final submit retries with a stable `externalArtifactId` and never auto-submits
+- [ ] Submission assets use public permanent HTTPS URLs, not localhost, IP literals, or internal hosts
 
 ## Security
 
 - [ ] No MCP / Daven secrets in the frontend
+- [ ] The app never sends its session to an arbitrary launch proxy; custom proxy allowlists are static configuration only
 - [ ] No full secrets in logs or error UI
 
 ## Classroom UX
 
+- [ ] Hosted existing apps keep [hosted-app](/en/edu/hosted-app) invariants (identity stays, Edu AI only, no key fallback)
+- [ ] Tab favicon is Classroom Hub `/brand/classroom-logo.png` (tab title is the app name)
+- [ ] `hostedUrl` is `https://{slug}.edu-app.daven.ai`
 - [ ] EN / KO (or target locales) labels
 - [ ] AI never overwrites student text without an explicit action
 - [ ] Preview / download / regenerate paths

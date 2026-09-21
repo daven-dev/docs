@@ -1,0 +1,282 @@
+---
+title: "Host an existing app on Daven"
+description: "Keep the app identity. Hub owns login. Daven owns AI and the school wallet."
+---
+
+Playbook for putting an **existing** education web app on Classroom Hub. If you are starting from scratch, read [Quickstart](/en/edu/quickstart) and the [Agent spec](/en/edu/agent-spec) first.
+
+First application: [Reading Passport](/en/edu/reference-app). Next: **Image Studio**.
+
+<Note>
+This page does not ask you to redraw the product. Move login, API keys, and payer identity to Daven. Leave the learning loop, brand, and copy with the app.
+</Note>
+
+## One line
+
+**The app owns learning UX and artifacts. Hub owns people and classrooms. Daven owns model execution and the school wallet. The browser never sees keys or payers.**
+
+## Three layers
+
+| Layer | Owns | Does not own |
+| --- | --- | --- |
+| **App identity** | Name, voice, screen loop, domain prompts, student files | Daven login, school-wallet UI, a copy of the Hub dashboard |
+| **Classroom Hub** | Student and teacher login, roster, activity assignment, new-tab Start, submission list | In-app lesson screens, model keys |
+| **Daven + proxy** | Model runs, quotes, `reserve → settle \| release`, usage ledger | App brand, silently overwriting student prose |
+
+`@davenai/sdk/edu` (browser) and `@davenai/sdk/server` (BFF) join the layers. Do not add `login()` on the education-app SDK. The public name is `session`.
+
+## Invariants
+
+Do not copy this playbook into another repo if you break any of these.
+
+1. Hub **Start** opens `{hostedUrl}?session=&proxy=` in a **new tab**. Do not iframe the education app in the dashboard as the default launch.
+2. Students and teachers sign in **only on Hub**. Do not add Daven / Google / an in-app student-code login as the Edu default.
+3. Never put a Daven key, MCP key, `OPENAI_API_KEY`, or school payer ID in the browser or a public bundle.
+4. The client does not choose `studentId`, `schoolId`, `classroomId`, or payer. Trust `GET /api/session/context` only.
+5. Edu-runtime AI uses the proxy only. If the session is missing or expired, fail closed with `EDU_RELAUNCH_REQUIRED`. Do not fall back to an operator provider key.
+6. Mint one stable `operationId` per user action. Retries derive from that id. Do not reuse the same idempotency key on a different body.
+7. In-app save / publish / download is not Hub **submit**. `externalArtifactId` is the app artifact id. Only an explicit resubmit of the same id updates the Hub row.
+8. If `shouldRelaunchEducationApp(error)` is true, keep the work and tell the student to reopen from Hub. Auto-refresh is not the default.
+9. Do not use Gemini (or any provider whose terms block under-18 clients) on the student path.
+10. Domain prompts, validation, and screens stay in the app. The SDK replaces **transport** only.
+11. The tab favicon is the Classroom Hub mark `/brand/classroom-logo.png`. The tab title is the app name. Do not leave the Next / Vercel default icon.
+
+Contracts: [Session & proxy](/en/edu/session-proxy) · [MCP API](/en/edu/proxy-api) · [Submissions](/en/edu/submissions) · [Agent spec](/en/edu/agent-spec).
+
+## Run modes
+
+An already-shipping app should fork paths behind one flag. Do not flip the default during an active school term.
+
+| `EDU_INTEGRATION_MODE` | Auth | AI | When |
+| --- | --- | --- | --- |
+| `legacy` | Existing app login, if any | Operator provider key | Before classroom cutover |
+| `hybrid` | Hub session if present, else legacy | Follows the runtime | Pilot |
+| `edu_only` | Hub session only | Proxy only. Delete the key path | Classroom cutover |
+
+Use these names even if you only need one mode. The next app will search for them.
+
+Local and Playground bill the **developer**. Classroom bills the **school managed wallet**. Never debit both on one request.
+
+## Ownership
+
+<Tabs>
+  <Tab title="App keeps">
+    - Product name, copy, learning loop
+    - Domain prompts and result checks
+    - Drafts, artifacts, progress (app DB or browser storage)
+    - App-only teacher tools (content review, progress board)
+    - Export formats (PDF, PPTX, ZIP)
+  </Tab>
+  <Tab title="Hub takes">
+    - Student-code / teacher login
+    - School, classroom, roster, activity assignment
+    - Launch session (`student_activity` / `student_preview` / `teacher_manage`)
+    - Submission list and classroom ownership
+  </Tab>
+  <Tab title="Daven takes">
+    - School `edu_school` managed account (`login_enabled = false`)
+    - Model allowlist and price list
+    - Text 1 credit, image 10 credits (image reserved until `media/get` completes)
+    - `usage_events` attribution (actor = Edu user, billing = school)
+  </Tab>
+</Tabs>
+
+Do not create a Daven account per student. Do not write `edu_user_id` into an existing `user_id` or `daven_id` column.
+
+## Minimum code
+
+Browser:
+
+```ts
+import { createDavenEduClient } from "@davenai/sdk/edu";
+
+const daven = createDavenEduClient({
+  expectedAppSlug: "your-registered-app-slug",
+});
+
+const context = await daven.session.getContext();
+const quote = await daven.billing.quote({ mediaType: "image" });
+const image = await daven.ai.image.generate({ prompt });
+```
+
+If the app server composes prompts, do not send keys to the browser. Build `@davenai/sdk/server` with the verified `session` and `proxy`. Do not pass a payer id into the SDK.
+
+Domain routes see a gateway only.
+
+```text
+app/lib/ai/text-gateway.ts
+app/lib/ai/image-gateway.ts
+app/lib/edu/runtime-session.ts
+app/lib/edu/submission-gateway.ts
+```
+
+```text
+text-gateway.generateText()      → daven.ai.text.generate()
+image-gateway.generateImage()    → daven.ai.image.generate()
+submission-gateway.submit()      → daven.submissions.submit()
+operationId from the user action → Idempotency-Key
+```
+
+If the SDK is not on npm yet, keep an internal transport that matches this contract and swap the file after publish. Leave routes and prompts alone.
+
+## Auth bridge
+
+If the app **already has a user table and RLS**, follow Reading Passport.
+
+<Steps>
+  <Step title="Launch">
+    Hub opens `{hostedUrl}?session=&proxy=` in a new tab. The SDK moves the query into headers and strips it from the URL.
+  </Step>
+  <Step title="Bootstrap">
+    The app server re-validates the signed session with `GET {proxy}/api/session/context`. The client must not trust a decoded JWT.
+  </Step>
+  <Step title="Local principal">
+    Map `edu_actor_id` to a deterministic in-app id. If you must keep existing FK/RLS, issue a **non-login** local principal. That is not a second account.
+  </Step>
+  <Step title="Cookies">
+    Keep session and proxy HttpOnly. The Edu `actorId` on the request must always match the server-owned `edu_actor_id`.
+  </Step>
+</Steps>
+
+If the app has **no user database**, do not invent a principal. Use context `actorId` as the runtime key. Drafts may stay in the browser. Only Hub submission URLs must be durable public HTTPS.
+
+Never merge Edu users by name, student code, or email. The match key is `actorId` only.
+
+`teacher_manage` must not impersonate a student. Turn on `supportsTeacherManage` in the catalog only when the app has a teacher workspace.
+
+## AI adapter
+
+<Steps>
+  <Step title="One boundary">
+    Every generation goes through a gateway. Routes do not call the OpenAI or Gemini SDK directly.
+  </Step>
+  <Step title="Pin the runtime">
+    Decide Edu vs legacy at the front of the request. Pass that runtime **explicitly** into `after()` and workers. An Edu job must never fall onto the operator key because a cookie vanished in the background.
+  </Step>
+  <Step title="Quote → create → poll">
+    Images: `quote` → `media/create` → `media/get`. Text: `text/create`. Do not invent a credit number that is not the Edu quote.
+  </Step>
+  <Step title="Failure">
+    Release the reservation on an explicit provider failure. On session expiry, keep the draft and ask for a Hub relaunch.
+  </Step>
+</Steps>
+
+Prompts, style tiles, safety rules, and UI copy stay in app files.
+
+## Submissions
+
+| App action | Hub action |
+| --- | --- |
+| Local save, library publish, file download | `POST …/submissions` |
+| Draft URL, blob, localhost | Forbidden. Public durable HTTPS only |
+| Work UUID / story id | `externalArtifactId` |
+
+Resubmitting the same work updates that row. A different id creates a new row. Omitting the id stores `__default__`.
+
+Copy generated images into non-expiring storage before submit. Do not put a 7-day cleanup URL in `primaryUrl`.
+
+## Host and tab icon
+
+Copy this into the next app too.
+
+- The public URL is `https://{slug}.edu-app.daven.ai`. DNS is one wildcard: `*.edu-app.daven.ai` → `cname.vercel-dns.com`. Do not put apps on `*.edu.daven.ai` — that zone is Hub / `api` / `dev`.
+- Add `{slug}.edu-app.daven.ai` on the Vercel project only. The wildcard DNS already exists.
+- The tab favicon is the **Classroom Hub mark**. Copy Hub `dv-edu/apps/web/public/brand/classroom-logo.png` to `public/brand/classroom-logo.png` and set metadata `icons.icon` / `icons.apple`.
+- The tab title is the app name, for example **Image Studio**. The favicon is Edu. Do not put an app logo, Vibe, or the Next / Vercel default icon in the tab.
+- Do not set `DAVEN_API_KEY` on production Vercel. Class uses the Hub session only. The key is for local `next dev` and Playground development.
+- [Playground](https://daven.ai/playground) Submit → Master Approve. Match `appSlug`, `appName`, and `hostedUrl`. Leave `supportsTeacherManage` off unless the app has a teacher-only workspace.
+- **Before catalog Approve**, a student session must return one real text result and one real image. If you wrap, deploy, and register in one shot, the failures below show up first in class.
+
+## What broke on Image Studio
+
+Do these in order or the next app will fail the same way.
+
+<AccordionGroup>
+  <Accordion title="Quote VALIDATION_ERROR — slug or code is required">
+    Hub `POST /api/quote` accepts only `{ "media_type": "image" | "text" }`. Forwarding that to `daven.ai/api/mcp/quote` makes PHP require `slug`/`code` and return `VALIDATION_ERROR` 422. The app surfaces it as “Could not make the picture.”
+
+    Hub quote must return the **school-pool fixed credits** locally: image 10, text 1, `billing: school-pool`. It is not the Daven MCP model-registry quote.
+
+    Quote is advisory. Production debit happens when `text/create` / `media/create` returns 2xx against school `remaining_credits`. Do not abort generate on a quote 422. Reading Passport skips quote.
+  </Accordion>
+
+  <Accordion title="Omitting model selects nano-banana-2 (student Gemini)">
+    If `media/create` has no `model`, Daven `/image/create` uses the workflow default **`nano-banana-2`**. You do not get `gpt-image-2` from the docs.
+
+    Classroom default is **`gpt-image-2.5`**. Set it on the app and on Hub. Do not use Gemini or nano-banana on the student path.
+
+    `gpt-image-2.5` quality is `fast` | `quality`. `medium` clamps to `fast`. Hub must forward `quality` to `/image/create`.
+  </Accordion>
+
+  <Accordion title="Enhance EMPTY_RESULT">
+    `text/create` can return 200 with `data.text === ""`. The app then returns `EMPTY_RESULT` 502. `gpt-5-mini` + `reasoning_effort: minimal` + a small `max_output_tokens` (for example 900) spends the budget on reasoning.
+
+    Classroom text uses **`gpt-5.6-luna`**, at least 1600 output tokens, and no reasoning flag by default. Retry once with a derived `operationId` if the body is empty. Treat 200 + empty text as failure.
+  </Accordion>
+
+  <Accordion title="Image succeeded, then died at 5MB">
+    Daven PNGs often exceed 5MB. Throwing `EDU_IMAGE_TOO_LARGE` after create and billing leaves the student a 502. Allow about 25MB on download, or compress after fetch.
+  </Accordion>
+
+  <Accordion title="Production keys and Vercel traps">
+    Do not set `DAVEN_API_KEY` or `OPENAI_API_KEY` on production Vercel. Class uses the Hub session only. Local `next dev` with a developer key is not a student generate.
+
+    The Vercel framework must be **Next.js**. `Other` 404s the first deploy. Bind only `{slug}.edu-app.daven.ai`.
+
+    Framer `onDrag` on `motion.button` breaks the React 19 production build. Omit the drag props.
+
+    Stuffing the launch JWT into cookies yields `EDU_SESSION_TOO_LARGE`. Keep cookies short. Read the session on the server.
+  </Accordion>
+</AccordionGroup>
+
+## Phases (copy into the next app)
+
+<Steps>
+  <Step title="0. Contract">
+    Confirm `expectedAppSlug`, session v2 purposes, OpenAPI, and credits (text 1 / image 10).
+  </Step>
+  <Step title="1. Auth">
+    `/edu/bootstrap` or an equivalent server entry. Hide the login screen in Edu mode. An operator-only login may stay, split from classroom roles.
+  </Step>
+  <Step title="2. Non-AI loop">
+    Launch → save → close → reopen. Prove data survives without AI first.
+  </Step>
+  <Step title="3. Text AI">
+    Move low-risk calls through the gateway, then structured output.
+  </Step>
+  <Step title="4. Image AI">
+    Send `model: gpt-image-2.5`. References, aspect ratio, job polling. No Gemini / nano-banana on the student path.
+  </Step>
+  <Step title="5. Student smoke">
+    One text and one image from Hub **Start**. Approve the catalog only after `VALIDATION_ERROR` / `EMPTY_RESULT` / 5MB drops are gone.
+  </Step>
+  <Step title="6. Submit">
+    Durable URL + stable `externalArtifactId` + an explicit button. No auto-submit.
+  </Step>
+</Steps>
+
+Done when:
+
+- The network tab has no browser calls to `daven.ai` / `app.daven.ai`.
+- The same generate without a session returns 401 or relaunch — the operator key does not slip in.
+- Clearing the session keeps the draft and only blocks AI.
+- A teacher preview session cannot submit.
+
+## Do not
+
+- Iframe Hub inside the app, or make a dashboard iframe the default app launch
+- Show Daven marketing, profile, billing, or `auth.daven.ai` to students
+- Restyle the app as SEED Classroom Hub — SEED is Hub only
+- Use the Vibe wordmark or Braid gradient as the education-app brand
+- Leave the Next / Vercel default favicon in the tab — use Edu `classroom-logo.png`
+- Put “platform / solution / API key” on a student button
+
+Follow the app’s own design doc for tokens and chrome. Align **waiting, empty, error, and i18n (EN default / KR secondary)** with Vibe foundations so the next app feels like the same hands. Do not copy Vibe’s product loop (chat + preview + Publish).
+
+## Reference implementations
+
+| App | Read |
+| --- | --- |
+| Reading Passport | `docs/core/daven-edu-sdk-target-architecture.md`, `docs/plans/2026-09-10-edu-integration-plan.md`, `src/lib/edu/*-gateway.ts` |
+| Image Studio | `edu/image-studio/docs/plans/2026-09-20-edu-integration-plan.md` |
+| Sihwa Studio | Playground / developer-key pattern only. Do not use that path in class |

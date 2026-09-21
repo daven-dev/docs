@@ -7,86 +7,105 @@ This page is an **agent implementation spec**, not the human Quickstart. Prefer 
 
 Dump: [`llms.txt`](/en/edu/llms.txt) · Proxy: [`openapi.yaml`](/edu/openapi.yaml) · LMS: [`lms-openapi.yaml`](/edu/lms-openapi.yaml) · [`activity-submission.schema.json`](/edu/activity-submission.schema.json)
 
+When hosting an existing product, keep the invariants in [Host an existing app](/en/edu/hosted-app). Do not restyle the lesson UI as Hub or Vibe.
+
 ## MUST
 
-1. Host an HTTPS (or local) web app opened in the Edu iframe.
-2. Read `session` and `proxy` via `URLSearchParams`.
-3. Call Daven only against the `{proxy}` base.
-4. Send `Authorization: Bearer {session}` **and** `X-Edu-Session: {session}` on every request.
+1. Host an HTTPS (or local) web app. Hub **Start** opens it in a **new tab**.
+2. In TypeScript apps, prefer `@davenai/sdk/edu`. It reads the launch `session` and `proxy` and removes them from the address bar.
+3. Call Daven only through the SDK or against the `{proxy}` base.
+4. A raw fetch fallback must send `Authorization: Bearer {session}` **and** `X-Edu-Session: {session}` on every request.
 5. Parse the envelope: `status === "success" | "error"`.
 6. Never put API keys / MCP secrets in the frontend.
+7. Use the SDK's trusted proxy defaults. If you need a custom proxy, add it only through static app configuration in `additionalTrustedProxyUrls`; never copy the launch query into that allowlist.
+8. When `shouldRelaunchEducationApp(error)` is `true`, preserve saved work and tell the user to reopen the activity from Hub.
 
 ## MUST NOT
 
 1. Call `daven.ai` / `app.daven.ai` directly from the browser.
-2. Require popups or top-level navigation for the default Edu flow.
+2. Require extra OAuth popups for the default Edu flow.
 3. Auto-overwrite student-authored text with AI output.
 
 ## Defaults
 
 | Key | Value |
 | --- | --- |
-| `proxy` (prod) | `https://edu.daven.ai/api/v1/mcp-proxy` |
+| `proxy` (prod) | `https://api.edu.daven.ai/api/v1/mcp-proxy` |
 | `proxy` (local Hub) | `http://localhost:3001/api/v1/mcp-proxy` |
 | Content-Type | `application/json` |
 
+## Session v2 (deterministic)
+
+New sessions are signed HS256 JWTs with `version: 2`, `purpose`, and `actorId`; `sub === actorId`.
+
+| `purpose` | `actor.role` | `studentId` | Submit |
+| --- | --- | --- | --- |
+| `student_activity` | `student` | Required (self) | Yes |
+| `student_preview` | `teacher` | Required | No |
+| `teacher_manage` | `teacher` | Optional / `null` | No |
+
+`actor.id` is the authenticated Hub profile. `studentId` is the student whose work is in context. Do not trust a decoded JWT in the app; use `GET /api/session/context`. Use the student/teacher `actorId` from context as the stable app identity; never match by name or student code. Only `teacher_manage` may call `GET /api/session/roster`, whose response excludes email, access codes, balances, and payer data. When the app provides a teacher-specific workspace, enable `supportsTeacherManage` in the Master-approved catalog so the Hub shows this launch. The server normalizes signed v1 JWTs during migration but rejects unsigned base64 sessions.
+
+## Submission v2 (deterministic)
+
+- Final submission POST accepts only a `student_activity` Edu session.
+- `externalArtifactId` is optional and contains 1–128 `[A-Za-z0-9._:-]` characters.
+- Omitting it uses `__default__`, preserving the legacy behavior of updating one default row.
+- Identity is `(activityId, studentId, appSlug, externalArtifactId)`. Stable IDs support multiple artifacts and per-artifact resubmission.
+- Submission URLs must be permanent public HTTPS. Reject localhost, IP literals, internal hostnames, and credential-bearing URLs.
+- Submission list GET is not an education-app session API. It requires the normal Hub teacher bearer and ownership of the activity's classroom. Never list anonymously.
+
 ## Endpoints (complete)
+
+Use the launch `{proxy}` as the base for proxy paths below. Student submission uses the Edu API base that the SDK derives from `{proxy}`. Follow the OpenAPI and submission schema for request bodies.
 
 | Op | Method | Path |
 | --- | --- | --- |
 | health | GET | `/health` |
+| sessionContext | GET | `/api/session/context` |
+| sessionRoster | GET | `/api/session/roster` |
 | account | GET | `/api/account` |
-| quote | POST | `/api/quote` |
+| quote | POST | `/api/quote` (`{ media_type }` only — school-pool credits, not Daven MCP slug/code) |
+| textCreate | POST | `/api/text/create` |
 | uploadUrl | POST | `/api/upload-url` |
 | mediaCreate | POST | `/api/media/create` |
 | mediaGet | POST | `/api/media/get` |
 | catalog | GET | `/api/catalog` |
+| studentSubmit | POST | `{eduApi}/activities/{activityId}/submissions` |
 
-Body fields are model-specific (`additionalProperties` in OpenAPI).
+AI body fields are model-specific (`additionalProperties` in OpenAPI).
 
-## Canonical client (copy)
+## Canonical SDK client
 
 ```ts
-const params = new URLSearchParams(location.search);
-const session = params.get("session");
-const proxy = (
-  params.get("proxy") || "https://edu.daven.ai/api/v1/mcp-proxy"
-).replace(/\/$/, "");
+import { createDavenEduClient } from "@davenai/sdk/edu";
 
-export async function davenFetch(path: string, init?: RequestInit) {
-  const res = await fetch(
-    `${proxy}${path.startsWith("/") ? path : `/${path}`}`,
-    {
-      ...init,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        ...(session
-          ? {
-              Authorization: `Bearer ${session}`,
-              "X-Edu-Session": session,
-            }
-          : {}),
-        ...(init?.headers ?? {}),
-      },
-    },
-  );
-  const json = await res.json();
-  if (!res.ok || json?.status === "error") {
-    throw new Error(json?.error?.message || res.statusText);
-  }
-  return json;
-}
+const daven = createDavenEduClient({
+  expectedAppSlug: "your-registered-app-slug",
+});
+const context = await daven.session.getContext();
+const account = await daven.billing.getAccount();
+const quote = await daven.billing.quote({ mediaType: "image" });
+const image = await daven.ai.image.generate(
+  { prompt: "A reading passport stamp" },
+  { idempotencyKey: crypto.randomUUID() },
+);
 ```
+
+Use `@davenai/sdk/server` with explicit `session`, `proxy`, and `expectedAppSlug` in a Node BFF. The SDK stops when `expectedAppSlug` does not match the verified session context. Implement the raw fetch fallback in [`llms.txt`](/en/edu/llms.txt) only when the SDK is unavailable.
 
 ## Acceptance (binary)
 
 Report “integration complete” only when all are true:
 
-- [ ] `davenFetch("/api/account")` → HTTP 200, `status === "success"`
+- [ ] `daven.billing.getAccount()` succeeds
 - [ ] Without session headers → 401
+- [ ] Each SDK AI user action creates an operation ID and reuses it only when retrying the same request
+- [ ] Final submit runs only for `student_activity` and reuses a stable `externalArtifactId` per artifact
+- [ ] Session expiry/401 shows relaunch UI without discarding saved work
 - [ ] DevTools Network shows Edu proxy host only
-- [ ] Core flow works under iframe sandbox
+- [ ] Core flow works as a top-level page (new tab)
+- [ ] Catalog Approve only after student Start returns one text and one image. Pitfalls: [hosted-app](/en/edu/hosted-app#what-broke-on-image-studio)
 
 ## Reference paths
 
