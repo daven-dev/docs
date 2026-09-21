@@ -10,10 +10,11 @@
 - Daven AI = generation backend. Browser must NEVER hold API keys.
 
 ## Embed / launch contract (deterministic)
-Edu opens: `{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}` as a **top-level new tab**.
+Edu opens: `{hostedUrl}?session={TOKEN}&proxy={PROXY_BASE}&locale={en|kr}` as a **top-level new tab**.
 - Default PROXY_BASE production: `https://api.edu.daven.ai/api/v1/mcp-proxy`
 - Local Hub: `http://localhost:3001/api/v1/mcp-proxy`
 - App MUST read `session` + `proxy` from URL search params (works top-level or iframe).
+- App MUST honor launch `locale` (`en` | `kr`; map `kr` → `ko` if the app uses `ko` routes). Prefer query over a leftover locale cookie.
 - App MUST call Daven only via PROXY_BASE (paths below).
 - App MUST send session on requests:
   - Header `Authorization: Bearer {session}`

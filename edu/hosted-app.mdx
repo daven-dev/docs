@@ -29,7 +29,7 @@ description: "앱 아이덴티티는 유지하고, 로그인·AI·과금만 Hub�
 
 아래를 깨면 다른 앱으로 복제하지 마세요.
 
-1. Hub **시작**은 `{hostedUrl}?session=&proxy=`를 **새 탭**으로 연다. 교실 기본 실행을 대시보드 iframe으로 두지 않는다.
+1. Hub **시작**은 `{hostedUrl}?session=&proxy=&locale=`를 **새 탭**으로 연다. `locale`은 Hub 경로와 같다 (`en` | `kr`). 앱 라우트가 `ko`이면 `kr`을 `ko`로 받는다. 교실 기본 실행을 대시보드 iframe으로 두지 않는다.
 2. 학생·교사는 **Hub에서만** 로그인한다. 앱에 Daven / Google / 자체 학생 코드 로그인을 Edu 기본 흐름으로 두지 않는다.
 3. 브라우저와 공개 번들에 Daven 키, MCP 키, `OPENAI_API_KEY`, 학교 payer ID를 넣지 않는다.
 4. 클라이언트가 `studentId`, `schoolId`, `classroomId`, payer를 고르지 않는다. `GET /api/session/context`만 믿는다.

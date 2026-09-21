@@ -17,6 +17,7 @@
 - **Classroom Hub / DV Edu** — school classroom platform at `edu.daven.ai` (`dv-edu` repo)
 - **Education app / Edu app** — hosted lesson tool embedded in Edu via iframe (not the Hub itself)
 - **MCP proxy** — Edu Nest path `/api/v1/mcp-proxy` that education apps call with a session (no browser API keys)
+- **Classroom launch** — Hub **Start** opens `{hostedUrl}?session=&proxy=&locale=` in a **new tab** (not a dashboard iframe)
 - Prefer "education app" / "교육앱" over vague "MCP app" in end-user docs; "MCP app" is fine in technical contract pages
 
 Developer docs for Edu apps live under `edu/` (KO) and `en/edu/` (EN), tab **교육앱 개발** / **Edu Apps**.
@@ -28,8 +29,9 @@ Machine-readable Edu contract (prefer for coding agents):
 - `edu/openapi.yaml` (mcp-proxy) · `edu/lms-openapi.yaml` (submissions)
 - `edu/activity-submission.schema.json`
 - `edu/agent-spec.mdx` / `en/edu/agent-spec.mdx`
+- `edu/hosted-app.mdx` / `en/edu/hosted-app.mdx` — wrap an existing product: keep identity, Hub login, Daven AI/wallet
 
-Human Edu docs: developer journey + **MCP** group (`proxy-api`, `submissions`). Student work is URL-first envelope → LMS. Hub iframe/session details stay in `daven_guidelines`.
+Human Edu docs: developer journey + **MCP** group (`proxy-api`, `session-proxy`, `catalog`, `submissions`, `hub-status`). Student work is URL-first envelope → LMS. Hub launch is new-tab hostedUrl; iframe `/embed` is optional. Existing products follow **hosted-app**, not a Hub/Vibe restyle.
 
 Prefer Mintlify components (`Card`, `Columns`, `Steps`, `Tabs`, `CodeGroup`, `Accordion`, callouts) on Edu pages — keep them scannable, not long prose.
 

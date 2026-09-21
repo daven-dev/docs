@@ -29,7 +29,7 @@ This page does not ask you to redraw the product. Move login, API keys, and paye
 
 Do not copy this playbook into another repo if you break any of these.
 
-1. Hub **Start** opens `{hostedUrl}?session=&proxy=` in a **new tab**. Do not iframe the education app in the dashboard as the default launch.
+1. Hub **Start** opens `{hostedUrl}?session=&proxy=&locale=` in a **new tab**. `locale` matches the Hub path (`en` | `kr`). If the app routes on `ko`, map `kr` → `ko`. Do not iframe the education app in the dashboard as the default launch.
 2. Students and teachers sign in **only on Hub**. Do not add Daven / Google / an in-app student-code login as the Edu default.
 3. Never put a Daven key, MCP key, `OPENAI_API_KEY`, or school payer ID in the browser or a public bundle.
 4. The client does not choose `studentId`, `schoolId`, `classroomId`, or payer. Trust `GET /api/session/context` only.
