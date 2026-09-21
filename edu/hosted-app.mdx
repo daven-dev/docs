@@ -218,6 +218,12 @@ npm에 SDK가 없으면 같은 계약의 내부 transport를 쓰고, publish 뒤
     Daven 결과 PNG는 5MB를 넘는 경우가 많습니다. 생성·과금 뒤에 `EDU_IMAGE_TOO_LARGE`로 버리면 학생은 502만 봅니다. 다운로드 한도는 약 25MB로 두거나, 받은 뒤 압축하세요.
   </Accordion>
 
+  <Accordion title="제출 Too Large — 페이지 data URL을 한 번에 POST">
+    완성 페이지 PNG를 data URL로 모아 `POST /api/studio/submit` 하면 Vercel 함수 본문 한도(약 4.5MB)에 걸립니다. 학생은 413 `FUNCTION_PAYLOAD_TOO_LARGE` 또는 “Too Large”를 봅니다.
+
+    페이지는 Hub `upload-url`로 **한 장씩** 올린 뒤, 제출 본문에는 HTTPS `primaryUrl` + `assets[]`만 넣으세요. 브라우저가 storage에 PUT하고, CORS가 막히면 한 장짜리 JPEG BFF로만 우회합니다. Hub 교사 **제출물** 탭이 그 URL을 엽니다.
+  </Accordion>
+
   <Accordion title="운영 키와 Vercel 함정">
     운영 Vercel에 `DAVEN_API_KEY` / `OPENAI_API_KEY`를 넣지 마세요. 교실은 Hub `session`만 씁니다. 로컬 `next dev` + 개발자 키가 된다고 학생 그림이 되는 게 아닙니다.
 

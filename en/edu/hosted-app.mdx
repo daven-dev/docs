@@ -218,6 +218,12 @@ Do these in order or the next app will fail the same way.
     Daven PNGs often exceed 5MB. Throwing `EDU_IMAGE_TOO_LARGE` after create and billing leaves the student a 502. Allow about 25MB on download, or compress after fetch.
   </Accordion>
 
+  <Accordion title="Submit Too Large — posting page data URLs">
+    Bundling finished page PNGs as data URLs into one `POST /api/studio/submit` hits the Vercel function body limit (~4.5MB). Students see 413 `FUNCTION_PAYLOAD_TOO_LARGE` or “Too Large.”
+
+    Upload each page through Hub `upload-url`, then POST only HTTPS `primaryUrl` + `assets[]`. The browser PUTs to storage; if CORS blocks that, fall back to one JPEG through the BFF. The Hub teacher **Submissions** tab opens those URLs.
+  </Accordion>
+
   <Accordion title="Production keys and Vercel traps">
     Do not set `DAVEN_API_KEY` or `OPENAI_API_KEY` on production Vercel. Class uses the Hub session only. Local `next dev` with a developer key is not a student generate.
 
